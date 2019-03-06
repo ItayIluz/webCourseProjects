@@ -1,0 +1,68 @@
+body, html {
+    width: 100%;
+    height: 100%;
+    background: pink;
+}
+
+.game-container{
+    display: flex;
+}
+
+.sidebar{
+    background: aqua;
+    width: 20%;
+    max-width: 500px;
+    min-width: 300px;
+}
+
+.board-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.board {
+    width: 700px;
+    height: 700px;
+    display: flex;
+    flex-direction: column;
+    object-fit: contain;
+    background: aliceblue;
+}
+
+
+.board-row {
+    display: flex;
+    flex-grow: 1;
+}
+
+.board-cell {
+    border: 1px solid black;
+    flex-grow: 1;
+    padding: 5%;
+}
+
+.board-piece {
+    border-radius: 100%;
+    border: 1px solid rgba(0,0,0,0);
+    transition: all 250ms ease-in;
+    width: 100%;
+    height: 100%;
+}
+
+.board-piece:hover{
+    border: 1px solid black;
+    /*background-color: darkgray;*/
+}
+
+.board-piece.black{
+    border: 1px solid black;
+    background-color: black;
+}
+
+.board-piece.white{
+    border: 1px solid black;
+    background-color: white;
+}
