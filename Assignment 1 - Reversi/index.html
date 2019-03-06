@@ -9,50 +9,20 @@
 <body>
 <div class="game">
     <h1>Reversi Game</h1>
-    <div class="game-container">
-
+    <div id="reversi-game" class="game-container">
         <div class="board-container">
-            <div class="board">
-                <div class="board-row">
-                    <div class="board-cell">
-                        <div class="board-piece"></div>
-                    </div>
-                    <div class="board-cell">
-                        <div class="board-piece black"></div>
-                    </div>
-                    <div class="board-cell">
-                        <div class="board-piece white"></div>
-                    </div>
-                </div>
-                <div class="board-row">
-                    <div class="board-cell">
-                        <div class="board-piece"></div>
-                    </div>
-                    <div class="board-cell">
-                        <div class="board-piece"></div>
-                    </div>
-                    <div class="board-cell">
-                        <div class="board-piece"></div>
-                    </div>
-                </div>
-                <div class="board-row">
-                    <div class="board-cell">
-                        <div class="board-piece"></div>
-                    </div>
-                    <div class="board-cell">
-                        <div class="board-piece"></div>
-                    </div>
-                    <div class="board-cell">
-                        <div class="board-piece"></div>
-                    </div>
-                </div>
+            <div id="reversi-board" class="board">
+                
             </div>
         </div>
-        <div class="sidebar">
+        <div id="reversi-statistics" class="sidebar">
             <h3>Data players.... wow</h3>
         </div>
     </div>
 </div>
+    <script>
+    buildBoard();
+    </script>
 
 </body>
 </html>
