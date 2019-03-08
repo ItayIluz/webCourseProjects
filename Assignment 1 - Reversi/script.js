@@ -71,7 +71,7 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
     if(resultsObject.isValid && resultsObject.piecesToChangeLeft > 0){
         atLeastOneValidResult = true;
         let rowColumns = document.getElementsByClassName('board-row').item(clickedRow).children;
-        for(let column = clickedColumn; column > 0 && resultsObject.piecesToChangeLeft+1 > 0; column--, resultsObject.piecesToChangeLeft--){
+        for(let column = clickedColumn; column >= 0 && resultsObject.piecesToChangeLeft+1 > 0; column--, resultsObject.piecesToChangeLeft--){
             rowColumns[column].children[0].classList.remove(player1 ? "black" : "white");
             rowColumns[column].children[0].classList.add(player1 ? "white" : "black");
             boardData[clickedRow][column] = player1;
@@ -90,7 +90,7 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
     if(resultsObject.isValid && resultsObject.piecesToChangeRight > 0){
         atLeastOneValidResult = true;
         let rowColumns = document.getElementsByClassName('board-row').item(clickedRow).children;
-        for(let column = clickedColumn; column < BOARD_DIMENSION-1 && resultsObject.piecesToChangeRight+1 > 0; column++, resultsObject.piecesToChangeRight--){ 
+        for(let column = clickedColumn; column < BOARD_DIMENSION && resultsObject.piecesToChangeRight+1 > 0; column++, resultsObject.piecesToChangeRight--){ 
             rowColumns[column].children[0].classList.remove(player1 ? "black" : "white");
             rowColumns[column].children[0].classList.add(player1 ? "white" : "black");
             boardData[clickedRow][column] = player1;
