@@ -3,13 +3,44 @@ const BOARD_DIMENSION = 8;
 let gameData = {
     board: [],
     player1sTurn: true,
-    totalTurns: 0,
     player1Score: 2,
     player2Score: 2,
-    
+    player1TwoPiecesCount: 1,
+    player2TwoPiecesCount: 1,
+    totalTurns: 0,
+    gameTime: 0,
+    turnTime: 0,
+    averageTurnTime: 0,
 };
 
-function buildBoard(){
+function updateGameTime(){
+    gameData.gameTime++
+    document.getElementById("statistics-game-time").innerHTML = "Game Time: " + formatTime(gameData.gameTime);
+}
+
+function updateStatistics(){
+    document.getElementById("statistics-total-turns").innerHTML = "Total Turns: " + gameData.totalTurns;
+    document.getElementById("statistics-average-turn-time").innerHTML = "Average Game Turn Time: " + formatTime(gameData.averageTurnTime);
+    document.getElementById("statistics-player1-score").innerHTML = "Player 1 Score: " + gameData.player1Score;
+    document.getElementById("statistics-player2-score").innerHTML = "Player 2 Score: " + gameData.player2Score;
+    document.getElementById("statistics-player1-two-pieces-count").innerHTML = "Player 1 Two Pieces Count: " + gameData.player1TwoPiecesCount;
+    document.getElementById("statistics-player2-two-pieces-count").innerHTML = "Player 2 Two Pieces Count: " + gameData.player2TwoPiecesCount;
+}
+
+function formatTime(time){
+    let minutes = parseInt(time / 60);
+    let seconds = parseInt(time - (minutes * 60));
+
+    if(minutes < 10)   
+        minutes = "0" + minutes;
+
+    if(seconds < 10)
+        seconds = "0" + seconds;
+
+    return minutes + ":" + seconds;
+}
+
+function buildBoardAndInitGame(){
 
     let divRow, divCell, divPiece,
         halfBoardDimension = (BOARD_DIMENSION / 2) - 1,
@@ -50,12 +81,17 @@ function buildBoard(){
                             gameData.player1Score -= (scoreChange-1);
                         }
 
+                        if(gameData.player1Score == 2)
+                            gameData.player1TwoPiecesCount++;
+
+                        if(gameData.player2Score == 2)
+                            gameData.player2TwoPiecesCount++
+
                         gameData.player1sTurn = !gameData.player1sTurn; // Change turn
                         gameData.totalTurns++; // Increment total turns
+                        gameData.averageTurnTime = gameData.gameTime / gameData.totalTurns;
 
-                        console.log("Total Turns: " + gameData.totalTurns);
-                        console.log("Player 1 Score: " + gameData.player1Score);
-                        console.log("Player 2 Score: " + gameData.player2Score);
+                        updateStatistics();
                     }else
                         alert("You can't place a piece there!");
                 };
@@ -65,7 +101,9 @@ function buildBoard(){
         }
 
         gameBoard.append(divRow);
-    }
+    } 
+    updateStatistics();
+    setInterval(updateGameTime, 1000);
 }
 
 function changePlayerPieces(clickedRow, clickedColumn, player1){

@@ -17,11 +17,18 @@
         </div>
         <div id="reversi-statistics" class="sidebar">
             <h3>Data players.... wow</h3>
+            <div class="statistics-container"><span id="statistics-game-time" class="statistics-data">Game Time: 00:00</span></div>
+            <div class="statistics-container"><span id="statistics-total-turns" class="statistics-data"></span></div>
+            <div class="statistics-container"><span id="statistics-average-turn-time" class="statistics-data"></span></div>
+            <div class="statistics-container"><span id="statistics-player1-score" class="statistics-data"></span></div>
+            <div class="statistics-container"><span id="statistics-player2-score" class="statistics-data"></span></div>
+            <div class="statistics-container"><span id="statistics-player1-two-pieces-count" class="statistics-data"></span></div>
+            <div class="statistics-container"><span id="statistics-player2-two-pieces-count" class="statistics-data"></span></div>
         </div>
     </div>
 </div>
     <script>
-        buildBoard();
+        buildBoardAndInitGame();
     </script>
 
 </body>
