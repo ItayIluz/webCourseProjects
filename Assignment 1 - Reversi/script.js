@@ -40,7 +40,7 @@ function buildBoard(){
                 divPiece.onclick = () => {
                     if(isValidMove(row, column, gameData.player1sTurn)){
                         let scoreChange = changePlayerPieces(row, column, gameData.player1sTurn);
-                            
+                        
                         if(gameData.player1sTurn){ // Update score
                             gameData.player1Score += scoreChange;
                             gameData.player2Score -= (scoreChange-1);
@@ -69,7 +69,7 @@ function buildBoard(){
 
 function changePlayerPieces(clickedRow, clickedColumn, player1){
 
-    let piecesToChange = [], rowCheck, columnCheck;
+    let piecesToChange = [], rowCheck, columnCheck, scoreToAdd = 0;
 
     // Check all eight directions
     for (let rowDirection = -1; rowDirection <= 1; rowDirection++) {
@@ -111,12 +111,15 @@ function changePlayerPieces(clickedRow, clickedColumn, player1){
     
     // Change pieces
     for (let i = 0; i < piecesToChange.length; i++) {
-        gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].element.classList.remove(player1 ? "black" : "white");
-        gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].element.classList.add(player1 ? "white" : "black");
-        gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 = player1;
+        if(gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 != player1){
+            scoreToAdd++;
+            gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].element.classList.remove(player1 ? "black" : "white");
+            gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].element.classList.add(player1 ? "white" : "black");
+            gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 = player1;
+        }
     }
 
-    return piecesToChange.length; // Return the score to add
+    return scoreToAdd; // Return the score to add
 }
 
 // Check board boundaries
