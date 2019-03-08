@@ -70,11 +70,9 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
 
     if(resultsObject.isValid && resultsObject.piecesToChangeLeft > 0){
         atLeastOneValidResult = true;
-        let rowColumns = document.getElementsByClassName('board-row').item(clickedRow).children;
+        let rowColumnsElement = document.getElementsByClassName('board-row').item(clickedRow).children;
         for(let column = clickedColumn; column >= 0 && resultsObject.piecesToChangeLeft+1 > 0; column--, resultsObject.piecesToChangeLeft--){
-            rowColumns[column].children[0].classList.remove(player1 ? "black" : "white");
-            rowColumns[column].children[0].classList.add(player1 ? "white" : "black");
-            boardData[clickedRow][column] = player1;
+            changePlayerPiece(rowColumnsElement, clickedRow, column, player1);
         }        
     }
 
@@ -89,11 +87,9 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
 
     if(resultsObject.isValid && resultsObject.piecesToChangeRight > 0){
         atLeastOneValidResult = true;
-        let rowColumns = document.getElementsByClassName('board-row').item(clickedRow).children;
+        let rowColumnsElement = document.getElementsByClassName('board-row').item(clickedRow).children;
         for(let column = clickedColumn; column < BOARD_DIMENSION && resultsObject.piecesToChangeRight+1 > 0; column++, resultsObject.piecesToChangeRight--){ 
-            rowColumns[column].children[0].classList.remove(player1 ? "black" : "white");
-            rowColumns[column].children[0].classList.add(player1 ? "white" : "black");
-            boardData[clickedRow][column] = player1;
+            changePlayerPiece(rowColumnsElement, clickedRow, column, player1);
         } 
     }
 
@@ -109,10 +105,8 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
     if(resultsObject.isValid && resultsObject.piecesToChangeUp > 0){
         atLeastOneValidResult = true;
         for(let row = clickedRow; row >= 0 && resultsObject.piecesToChangeUp+1 > 0; row--, resultsObject.piecesToChangeUp--){  
-            let columnRow = document.getElementsByClassName('board-row').item(row).children;
-            columnRow[clickedColumn].children[0].classList.remove(player1 ? "black" : "white");
-            columnRow[clickedColumn].children[0].classList.add(player1 ? "white" : "black");
-            boardData[row][clickedColumn] = player1;
+            let rowColumnsElement = document.getElementsByClassName('board-row').item(row).children;
+            changePlayerPiece(rowColumnsElement, row, clickedColumn, player1);
         } 
     }
 
@@ -128,14 +122,18 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
     if(resultsObject.isValid && resultsObject.piecesToChangeDown > 0){
         atLeastOneValidResult = true;
         for(let row = clickedRow; row < BOARD_DIMENSION && resultsObject.piecesToChangeDown+1 > 0; row++, resultsObject.piecesToChangeDown--){
-            let columnRow = document.getElementsByClassName('board-row').item(row).children;
-            columnRow[clickedColumn].children[0].classList.remove(player1 ? "black" : "white");
-            columnRow[clickedColumn].children[0].classList.add(player1 ? "white" : "black");
-            boardData[row][clickedColumn] = player1;
+            let rowColumnsElement = document.getElementsByClassName('board-row').item(row).children;
+            changePlayerPiece(rowColumnsElement, row, clickedColumn, player1);
         }
     }
 
     return atLeastOneValidResult;
+}
+
+function changePlayerPiece(rowColumnsElement, row, column, player1){
+    rowColumnsElement[column].children[0].classList.remove(player1 ? "black" : "white");
+    rowColumnsElement[column].children[0].classList.add(player1 ? "white" : "black");
+    boardData[row][column] = player1;
 }
 
 function checkForValidMove(row, column, player1, resultsObject){
