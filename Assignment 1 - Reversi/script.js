@@ -12,19 +12,20 @@ let gameData = {
     turnTime: 0,
     averageTurnTime: 0,
 };
+let statisticsElements;
 
 function updateGameTime(){
     gameData.gameTime++
-    document.getElementById("statistics-game-time").innerHTML = "Game Time: " + formatTime(gameData.gameTime);
+    statisticsElements.gameTimeSpan.innerHTML = "Game Time: " + formatTime(gameData.gameTime);
 }
 
 function updateStatistics(){
-    document.getElementById("statistics-total-turns").innerHTML = "Total Turns: " + gameData.totalTurns;
-    document.getElementById("statistics-average-turn-time").innerHTML = "Average Game Turn Time: " + formatTime(gameData.averageTurnTime);
-    document.getElementById("statistics-player1-score").innerHTML = "Player 1 Score: " + gameData.player1Score;
-    document.getElementById("statistics-player2-score").innerHTML = "Player 2 Score: " + gameData.player2Score;
-    document.getElementById("statistics-player1-two-pieces-count").innerHTML = "Player 1 Two Pieces Count: " + gameData.player1TwoPiecesCount;
-    document.getElementById("statistics-player2-two-pieces-count").innerHTML = "Player 2 Two Pieces Count: " + gameData.player2TwoPiecesCount;
+    statisticsElements.totalTurnsSpan.innerHTML = "Total Turns: " + gameData.totalTurns;
+    statisticsElements.averageTurnTimeSpan.innerHTML = "Average Game Turn Time: " + formatTime(gameData.averageTurnTime);
+    statisticsElements.player1ScoreSpan.innerHTML = "Player 1 Score: " + gameData.player1Score;
+    statisticsElements.player2ScoreSpan.innerHTML = "Player 2 Score: " + gameData.player2Score;
+    statisticsElements.player1TwoPiecesCountSpan.innerHTML = "Player 1 Two Pieces Count: " + gameData.player1TwoPiecesCount;
+    statisticsElements.player2TwoPiecesCountSpan.innerHTML = "Player 2 Two Pieces Count: " + gameData.player2TwoPiecesCount;
 }
 
 function formatTime(time){
@@ -102,6 +103,18 @@ function buildBoardAndInitGame(){
 
         gameBoard.append(divRow);
     } 
+
+    // Get easy access to statistics elements
+    statisticsElements = {
+        gameTimeSpan: document.getElementById("statistics-game-time"),
+        totalTurnsSpan: document.getElementById("statistics-total-turns"),
+        averageTurnTimeSpan: document.getElementById("statistics-average-turn-time"),
+        player1ScoreSpan: document.getElementById("statistics-player1-score"),
+        player2ScoreSpan: document.getElementById("statistics-player2-score"),
+        player1TwoPiecesCountSpan: document.getElementById("statistics-player1-two-pieces-count"),
+        player2TwoPiecesCountSpan: document.getElementById("statistics-player2-two-pieces-count")
+    };
+
     updateStatistics();
     setInterval(updateGameTime, 1000);
 }
