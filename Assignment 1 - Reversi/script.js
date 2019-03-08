@@ -4,7 +4,8 @@ let gameData = {
     board: [],
     player1sTurn: true,
     totalTurns: 0,
-    
+    player1Score: 2,
+    player2Score: 2,
 };
 
 function buildBoard(){
@@ -38,8 +39,22 @@ function buildBoard(){
                 gameData.board[row][column] = { element: divPiece, isPlayer1: null};
                 divPiece.onclick = () => {
                     if(isValidMove(row, column, gameData.player1sTurn)){
-                        changePlayerPieces(row, column, gameData.player1sTurn);
-                        gameData.player1sTurn = !gameData.player1sTurn;
+                        let scoreChange = changePlayerPieces(row, column, gameData.player1sTurn);
+                            
+                        if(gameData.player1sTurn){ // Update score
+                            gameData.player1Score += scoreChange;
+                            gameData.player2Score -= (scoreChange-1);
+                        } else {
+                            gameData.player2Score += scoreChange;
+                            gameData.player1Score -= (scoreChange-1);
+                        }
+
+                        gameData.player1sTurn = !gameData.player1sTurn; // Change turn
+                        gameData.totalTurns++; // Increment total turns
+
+                        console.log("Total Turns: " + gameData.totalTurns);
+                        console.log("Player 1 Score: " + gameData.player1Score);
+                        console.log("Player 2 Score: " + gameData.player2Score);
                     }else
                         alert("You can't place a piece there!");
                 };
@@ -56,61 +71,55 @@ function changePlayerPieces(clickedRow, clickedColumn, player1){
 
     let piecesToChange = [], rowCheck, columnCheck;
 
-    // check all eight directions
+    // Check all eight directions
     for (let rowDirection = -1; rowDirection <= 1; rowDirection++) {
 
         for (let columnDirection = -1; columnDirection <= 1; columnDirection++) {
 
-            // dont check the actual position
-            if (rowDirection === 0 && columnDirection === 0) 
+            if (rowDirection == 0 && columnDirection == 0)  // Skip the clicked position
                 continue;
 
-            // move to next item
+            // Move to next piece
             rowCheck = clickedRow + rowDirection;
             columnCheck = clickedColumn + columnDirection;
 
-            // possible items array
             let possiblePieces = [];
 
-            // look for valid items
-            // look for visible items
-            // look for items with opposite color
+            // Look for valid pieces and pieces with opposite color
             while (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == !player1) {
 
                 possiblePieces.push([rowCheck, columnCheck]);
 
-                // move to next position
+                // Move to next position
                 rowCheck += rowDirection;
                 columnCheck += columnDirection;
             }
 
-            // if some items were found
-            if (possiblePieces.length) {
-
-                // now we need to check that the next item is one of ours
+            if (possiblePieces.length) { // Found possible pieces to change
+                // Check that the next piece is of the current player's color
                 if (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == player1) {
 
-                    // push the actual item
+                    // If so, add the last piece to the list to of pieces to change
                     piecesToChange.push([clickedRow, clickedColumn]);
 
-                    // push each item actual line
-                    for (let item in possiblePieces)
-                        piecesToChange.push(possiblePieces[item]);
+                    for (let piece in possiblePieces) // And add the rest of the pieces to change
+                        piecesToChange.push(possiblePieces[piece]);
                 }
             }
         }
     }
     
-    // check for items to check
+    // Change pieces
     for (let i = 0; i < piecesToChange.length; i++) {
         gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].element.classList.remove(player1 ? "black" : "white");
         gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].element.classList.add(player1 ? "white" : "black");
         gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 = player1;
     }
 
-    return piecesToChange.length;
+    return piecesToChange.length; // Return the score to add
 }
 
+// Check board boundaries
 function isValidPosition(row, column){
     return (row >= 0 && row < BOARD_DIMENSION) && (column >= 0 && column < BOARD_DIMENSION);
 }
@@ -122,47 +131,36 @@ function isValidMove(clickedRow, clickedColumn, player1){ // player1 is white
     if (!this.isValidPosition(clickedRow, clickedColumn) || gameData.board[clickedRow][clickedColumn].isPlayer1 != null)
         return false;
 
-    // check all eight directions
+    // Check all eight directions
     for (let rowDirection = -1; rowDirection <= 1; rowDirection++) {
 
         for (let columnDirection = -1; columnDirection <= 1; columnDirection++) {
 
-            // dont check the actual position
-            if (rowDirection === 0 && columnDirection === 0) 
+            if (rowDirection === 0 && columnDirection === 0) // Skip the clicked position
                 continue;
 
-            // move to next item
+            // Move to next piece
             rowCheck = clickedRow + rowDirection;
             columnCheck = clickedColumn + columnDirection;
 
-            // were any items found ?
-            let itemFound = false;
+            let pieceFound = false; 
 
-            // look for valid items
-            // look for visible items
-            // look for items with opposite color
+             // Look for valid pieces and pieces with opposite color
             while (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == !player1) {
 
-                // move to next position
+                // Move to next position
                 rowCheck += rowDirection;
                 columnCheck += columnDirection;
 
-                // item found
-                itemFound = true; 
+                pieceFound = true; 
             }
 
-            // if some items were found
-            if (itemFound) {
-
-                // now we need to check that the next item is one of ours
-                if (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == player1) {
-
-                    // we have a valid move
-                    return true;
-                }
+            if (pieceFound) {
+                // Check that the next piece is of the current player's color
+                if (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == player1)
+                    return true; // Done - Valid move
             }
         }
     }
-
-    return false;
+    return false; // Done - Invalid move
 }
