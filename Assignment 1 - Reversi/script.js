@@ -1,5 +1,6 @@
 
 const BOARD_DIMENSION = 8;
+let timeCounter;
 let gameData = {
     board: [],
     player1sTurn: true,
@@ -102,7 +103,7 @@ function buildBoardAndInitGame(){
     };
 
     updateStatistics();
-    setInterval(updateGameTime, 1000);
+    timeCounter = setInterval(updateGameTime, 1000);
 }
 
 function checkEndgame(){
@@ -116,6 +117,7 @@ function checkEndgame(){
         } else { // It's a tie
             // Update message
         }
+        clearInterval(timeCounter);
     }
 }
 
