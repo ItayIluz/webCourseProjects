@@ -6,6 +6,7 @@ let gameData = {
     totalTurns: 0,
     player1Score: 2,
     player2Score: 2,
+    
 };
 
 function buildBoard(){
