@@ -1,7 +1,11 @@
 
 const BOARD_DIMENSION = 8;
-let player1sTurn = true;
-let boardData = [];
+let gameData = {
+    board: [],
+    player1sTurn: true,
+    totalTurns: 0,
+    
+};
 
 function buildBoard(){
 
@@ -12,7 +16,7 @@ function buildBoard(){
 
     for(let row = 0; row < BOARD_DIMENSION; row++){
         
-        boardData[row] = [];
+        gameData.board[row] = [];
         divRow = document.createElement("div");
         divRow.className = "board-row";
 
@@ -26,16 +30,17 @@ function buildBoard(){
 
             if((row == halfBoardDimension && column == halfBoardDimension) || (row == reverseHalfBoardDimension && column == reverseHalfBoardDimension)){
                 divPiece.className += " white";
-                boardData[row][column] = true; // player1 - white
+                gameData.board[row][column] = { element: divPiece, isPlayer1: true }; // player1 - white
             } else if((row == reverseHalfBoardDimension && column == halfBoardDimension) || (row == halfBoardDimension && column == reverseHalfBoardDimension)){
                 divPiece.className += " black";
-                boardData[row][column] = false; // player2 - black
+                gameData.board[row][column] = { element: divPiece, isPlayer1: false}; // player2 - black
             } else {
-                boardData[row][column] = null;
+                gameData.board[row][column] = { element: divPiece, isPlayer1: null};
                 divPiece.onclick = () => {
-                    if(checkClickPieceResults(row, column, player1sTurn))
-                        player1sTurn = !player1sTurn;
-                    else
+                    if(isValidMove(row, column, gameData.player1sTurn)){
+                        changePlayerPieces(row, column, gameData.player1sTurn);
+                        gameData.player1sTurn = !gameData.player1sTurn;
+                    }else
                         alert("You can't place a piece there!");
                 };
             }
@@ -47,107 +52,117 @@ function buildBoard(){
     }
 }
 
-function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 is white
+function changePlayerPieces(clickedRow, clickedColumn, player1){
 
-    let atLeastOneValidResult = false;
-    let resultsObject = {
-        piecesToChangeLeft: 0,
-        piecesToChangeRight: 0,
-        piecesToChangeUp: 0,
-        piecesToChangeDown: 0,
-        foundOpponentPiece: false, 
-        isValid: false
-    };
+    let piecesToChange = [], rowCheck, columnCheck;
 
-    // check left
-    resultsObject.foundOpponentPiece = false, resultsObject.isValid = false;
-    for(let column = clickedColumn-1; column >= 0; column--){   
-        if(checkForValidMove(clickedRow, column, player1, resultsObject))
-            break;
-        else
-            resultsObject.piecesToChangeLeft++;
-    }  
+    // check all eight directions
+    for (let rowDirection = -1; rowDirection <= 1; rowDirection++) {
 
-    if(resultsObject.isValid && resultsObject.piecesToChangeLeft > 0){
-        atLeastOneValidResult = true;
-        let rowColumnsElement = document.getElementsByClassName('board-row').item(clickedRow).children;
-        for(let column = clickedColumn; column >= 0 && resultsObject.piecesToChangeLeft+1 > 0; column--, resultsObject.piecesToChangeLeft--){
-            changePlayerPiece(rowColumnsElement, clickedRow, column, player1);
-        }        
+        for (let columnDirection = -1; columnDirection <= 1; columnDirection++) {
+
+            // dont check the actual position
+            if (rowDirection === 0 && columnDirection === 0) 
+                continue;
+
+            // move to next item
+            rowCheck = clickedRow + rowDirection;
+            columnCheck = clickedColumn + columnDirection;
+
+            // possible items array
+            let possiblePieces = [];
+
+            // look for valid items
+            // look for visible items
+            // look for items with opposite color
+            while (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == !player1) {
+
+                possiblePieces.push([rowCheck, columnCheck]);
+
+                // move to next position
+                rowCheck += rowDirection;
+                columnCheck += columnDirection;
+            }
+
+            // if some items were found
+            if (possiblePieces.length) {
+
+                // now we need to check that the next item is one of ours
+                if (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == player1) {
+
+                    // push the actual item
+                    piecesToChange.push([clickedRow, clickedColumn]);
+
+                    // push each item actual line
+                    for (let item in possiblePieces)
+                        piecesToChange.push(possiblePieces[item]);
+                }
+            }
+        }
+    }
+    
+    // check for items to check
+    for (let i = 0; i < piecesToChange.length; i++) {
+        gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].element.classList.remove(player1 ? "black" : "white");
+        gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].element.classList.add(player1 ? "white" : "black");
+        gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 = player1;
     }
 
-    // check right
-    resultsObject.foundOpponentPiece = false, resultsObject.isValid = false;
-    for(let column = clickedColumn+1; column < BOARD_DIMENSION; column++){ 
-        if(checkForValidMove(clickedRow, column, player1, resultsObject))
-            break;
-        else
-            resultsObject.piecesToChangeRight++;
-    }
+    return piecesToChange.length;
+}
 
-    if(resultsObject.isValid && resultsObject.piecesToChangeRight > 0){
-        atLeastOneValidResult = true;
-        let rowColumnsElement = document.getElementsByClassName('board-row').item(clickedRow).children;
-        for(let column = clickedColumn; column < BOARD_DIMENSION && resultsObject.piecesToChangeRight+1 > 0; column++, resultsObject.piecesToChangeRight--){ 
-            changePlayerPiece(rowColumnsElement, clickedRow, column, player1);
-        } 
-    }
+function isValidPosition(row, column){
+    return (row >= 0 && row < BOARD_DIMENSION) && (column >= 0 && column < BOARD_DIMENSION);
+}
 
-    // check up
-    resultsObject.foundOpponentPiece = false, resultsObject.isValid = false;
-    for(let row = clickedRow-1; row >= 0; row--){   
-        if(checkForValidMove(row, clickedColumn, player1, resultsObject))
-            break;
-        else
-            resultsObject.piecesToChangeUp++;
-    }
+function isValidMove(clickedRow, clickedColumn, player1){ // player1 is white
 
-    if(resultsObject.isValid && resultsObject.piecesToChangeUp > 0){
-        atLeastOneValidResult = true;
-        for(let row = clickedRow; row >= 0 && resultsObject.piecesToChangeUp+1 > 0; row--, resultsObject.piecesToChangeUp--){  
-            let rowColumnsElement = document.getElementsByClassName('board-row').item(row).children;
-            changePlayerPiece(rowColumnsElement, row, clickedColumn, player1);
-        } 
-    }
+    let rowCheck, columnCheck;
 
-    // check down
-    resultsObject.foundOpponentPiece = false, resultsObject.isValid = false;
-    for(let row = clickedRow+1; row < BOARD_DIMENSION; row++){
-        if(checkForValidMove(row, clickedColumn, player1, resultsObject))
-            break;
-        else
-            resultsObject.piecesToChangeDown++;
-    }
+    if (!this.isValidPosition(clickedRow, clickedColumn) || gameData.board[clickedRow][clickedColumn].isPlayer1 != null)
+        return false;
 
-    if(resultsObject.isValid && resultsObject.piecesToChangeDown > 0){
-        atLeastOneValidResult = true;
-        for(let row = clickedRow; row < BOARD_DIMENSION && resultsObject.piecesToChangeDown+1 > 0; row++, resultsObject.piecesToChangeDown--){
-            let rowColumnsElement = document.getElementsByClassName('board-row').item(row).children;
-            changePlayerPiece(rowColumnsElement, row, clickedColumn, player1);
+    // check all eight directions
+    for (let rowDirection = -1; rowDirection <= 1; rowDirection++) {
+
+        for (let columnDirection = -1; columnDirection <= 1; columnDirection++) {
+
+            // dont check the actual position
+            if (rowDirection === 0 && columnDirection === 0) 
+                continue;
+
+            // move to next item
+            rowCheck = clickedRow + rowDirection;
+            columnCheck = clickedColumn + columnDirection;
+
+            // were any items found ?
+            let itemFound = false;
+
+            // look for valid items
+            // look for visible items
+            // look for items with opposite color
+            while (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == !player1) {
+
+                // move to next position
+                rowCheck += rowDirection;
+                columnCheck += columnDirection;
+
+                // item found
+                itemFound = true; 
+            }
+
+            // if some items were found
+            if (itemFound) {
+
+                // now we need to check that the next item is one of ours
+                if (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == player1) {
+
+                    // we have a valid move
+                    return true;
+                }
+            }
         }
     }
 
-    return atLeastOneValidResult;
-}
-
-function changePlayerPiece(rowColumnsElement, row, column, player1){
-    rowColumnsElement[column].children[0].classList.remove(player1 ? "black" : "white");
-    rowColumnsElement[column].children[0].classList.add(player1 ? "white" : "black");
-    boardData[row][column] = player1;
-}
-
-function checkForValidMove(row, column, player1, resultsObject){
-
-    if(boardData[row][column] == null) // No piece
-        return true;  // Done - invalid
-    else if(boardData[row][column] == player1){ // Current player's piece
-        if(resultsObject.foundOpponentPiece){
-            resultsObject.isValid = true;
-            return true; // Done - valid
-        } else
-            return true; // Done - invalid
-    } else { // Opponent's piece
-        resultsObject.foundOpponentPiece = true;
-        return false; // Not done
-    } 
+    return false;
 }
