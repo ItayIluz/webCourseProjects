@@ -19,7 +19,7 @@ function updateGameTime(){
     statisticsElements.gameTimeSpan.innerHTML = "Game Time: " + formatTime(gameData.gameTime);
 }
 
-function updateStatistics(){
+function updateStatistics(){ // TODO Add current player's turn 
     statisticsElements.totalTurnsSpan.innerHTML = "Total Turns: " + gameData.totalTurns;
     statisticsElements.averageTurnTimeSpan.innerHTML = "Average Game Turn Time: " + formatTime(gameData.averageTurnTime);
     statisticsElements.player1ScoreSpan.innerHTML = "Player 1 Score: " + gameData.player1Score;
