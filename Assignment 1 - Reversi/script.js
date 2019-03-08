@@ -7,6 +7,8 @@ let gameData = {
     player2Score: 2,
     player1TwoPiecesCount: 1,
     player2TwoPiecesCount: 1,
+    player1Wins: 0,
+    player2Wins: 0,
     totalTurns: 0,
     gameTime: 0,
     turnTime: 0,
@@ -74,25 +76,9 @@ function buildBoardAndInitGame(){
                     if(isValidMove(row, column, gameData.player1sTurn)){
                         let scoreChange = changePlayerPieces(row, column, gameData.player1sTurn);
                         
-                        if(gameData.player1sTurn){ // Update score
-                            gameData.player1Score += scoreChange;
-                            gameData.player2Score -= (scoreChange-1);
-                        } else {
-                            gameData.player2Score += scoreChange;
-                            gameData.player1Score -= (scoreChange-1);
-                        }
-
-                        if(gameData.player1Score == 2)
-                            gameData.player1TwoPiecesCount++;
-
-                        if(gameData.player2Score == 2)
-                            gameData.player2TwoPiecesCount++
-
-                        gameData.player1sTurn = !gameData.player1sTurn; // Change turn
-                        gameData.totalTurns++; // Increment total turns
-                        gameData.averageTurnTime = gameData.gameTime / gameData.totalTurns;
-
+                        updateGameData(scoreChange)
                         updateStatistics();
+                        checkEndgame();
                     }else
                         alert("You can't place a piece there!");
                 };
@@ -117,6 +103,40 @@ function buildBoardAndInitGame(){
 
     updateStatistics();
     setInterval(updateGameTime, 1000);
+}
+
+function checkEndgame(){
+    if(gameData.player1Score == 0 || gameData.player2Score == 0 || (gameData.player1Score + gameData.player2Score == BOARD_DIMENSION*2)){
+        if(gameData.player1Score > gameData.player2Score){ // Player 1 wins
+            gameData.player1Wins++;
+             // Update message
+        } else if (gameData.player2Score > gameData.player1Score) { // Player 2 wins
+            gameData.player2Wins++;
+             // Update message
+        } else { // It's a tie
+            // Update message
+        }
+    }
+}
+
+function updateGameData(scoreChange){
+    if(gameData.player1sTurn){ // Update score
+        gameData.player1Score += scoreChange;
+        gameData.player2Score -= (scoreChange-1);
+    } else {
+        gameData.player2Score += scoreChange;
+        gameData.player1Score -= (scoreChange-1);
+    }
+
+    if(gameData.player1Score == 2)
+        gameData.player1TwoPiecesCount++;
+
+    if(gameData.player2Score == 2)
+        gameData.player2TwoPiecesCount++
+
+    gameData.player1sTurn = !gameData.player1sTurn; // Change turn
+    gameData.totalTurns++; // Increment total turns
+    gameData.averageTurnTime = gameData.gameTime / gameData.totalTurns;
 }
 
 function changePlayerPieces(clickedRow, clickedColumn, player1){
@@ -165,9 +185,12 @@ function changePlayerPieces(clickedRow, clickedColumn, player1){
     for (let i = 0; i < piecesToChange.length; i++) {
         if(gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 != player1){
             scoreToAdd++;
-            gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].element.classList.remove(player1 ? "black" : "white");
-            gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].element.classList.add(player1 ? "white" : "black");
-            gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 = player1;
+            let pieceData = gameData.board[piecesToChange[i][0]][piecesToChange[i][1]];
+            pieceData.element.classList.remove(player1 ? "black" : "white");
+            pieceData.element.classList.add(player1 ? "white" : "black");
+            pieceData.element.classList.add(player1 ? "white" : "black");
+            pieceData.element.onclick = undefined;
+            pieceData.isPlayer1 = player1;
         }
     }
 
