@@ -49,6 +49,7 @@ function buildBoard(){
 
 function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 is white
 
+    let atLeastOneValidResult = false;
     let resultsObject = {
         piecesToChangeLeft: 0,
         piecesToChangeRight: 0,
@@ -59,7 +60,7 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
     };
 
     // check left
-    resultsObject.foundOpponentPiece = false;
+    resultsObject.foundOpponentPiece = false, resultsObject.isValid = false;
     for(let column = clickedColumn-1; column >= 0; column--){   
         if(checkForValidMove(clickedRow, column, player1, resultsObject))
             break;
@@ -67,7 +68,8 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
             resultsObject.piecesToChangeLeft++;
     }  
 
-    if(resultsObject.piecesToChangeLeft > 0){
+    if(resultsObject.isValid && resultsObject.piecesToChangeLeft > 0){
+        atLeastOneValidResult = true;
         let rowColumns = document.getElementsByClassName('board-row').item(clickedRow).children;
         for(let column = clickedColumn; column > 0 && resultsObject.piecesToChangeLeft+1 > 0; column--, resultsObject.piecesToChangeLeft--){
             rowColumns[column].children[0].classList.remove(player1 ? "black" : "white");
@@ -77,7 +79,7 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
     }
 
     // check right
-    resultsObject.foundOpponentPiece = false;
+    resultsObject.foundOpponentPiece = false, resultsObject.isValid = false;
     for(let column = clickedColumn+1; column < BOARD_DIMENSION; column++){ 
         if(checkForValidMove(clickedRow, column, player1, resultsObject))
             break;
@@ -85,7 +87,8 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
             resultsObject.piecesToChangeRight++;
     }
 
-    if(resultsObject.piecesToChangeRight > 0){
+    if(resultsObject.isValid && resultsObject.piecesToChangeRight > 0){
+        atLeastOneValidResult = true;
         let rowColumns = document.getElementsByClassName('board-row').item(clickedRow).children;
         for(let column = clickedColumn; column < BOARD_DIMENSION-1 && resultsObject.piecesToChangeRight+1 > 0; column++, resultsObject.piecesToChangeRight--){ 
             rowColumns[column].children[0].classList.remove(player1 ? "black" : "white");
@@ -95,7 +98,7 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
     }
 
     // check up
-    resultsObject.foundOpponentPiece = false;
+    resultsObject.foundOpponentPiece = false, resultsObject.isValid = false;
     for(let row = clickedRow-1; row >= 0; row--){   
         if(checkForValidMove(row, clickedColumn, player1, resultsObject))
             break;
@@ -103,10 +106,10 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
             resultsObject.piecesToChangeUp++;
     }
 
-    if(resultsObject.piecesToChangeUp > 0){
-        let columnRow;
+    if(resultsObject.isValid && resultsObject.piecesToChangeUp > 0){
+        atLeastOneValidResult = true;
         for(let row = clickedRow; row >= 0 && resultsObject.piecesToChangeUp+1 > 0; row--, resultsObject.piecesToChangeUp--){  
-            columnRow = document.getElementsByClassName('board-row').item(row).children;
+            let columnRow = document.getElementsByClassName('board-row').item(row).children;
             columnRow[clickedColumn].children[0].classList.remove(player1 ? "black" : "white");
             columnRow[clickedColumn].children[0].classList.add(player1 ? "white" : "black");
             boardData[row][clickedColumn] = player1;
@@ -114,6 +117,7 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
     }
 
     // check down
+    resultsObject.foundOpponentPiece = false, resultsObject.isValid = false;
     for(let row = clickedRow+1; row < BOARD_DIMENSION; row++){
         if(checkForValidMove(row, clickedColumn, player1, resultsObject))
             break;
@@ -121,17 +125,17 @@ function checkClickPieceResults(clickedRow, clickedColumn, player1){ // player1 
             resultsObject.piecesToChangeDown++;
     }
 
-    if(resultsObject.piecesToChangeDown > 0){
-        let columnRow;
+    if(resultsObject.isValid && resultsObject.piecesToChangeDown > 0){
+        atLeastOneValidResult = true;
         for(let row = clickedRow; row < BOARD_DIMENSION && resultsObject.piecesToChangeDown+1 > 0; row++, resultsObject.piecesToChangeDown--){
-            columnRow = document.getElementsByClassName('board-row').item(row).children;
+            let columnRow = document.getElementsByClassName('board-row').item(row).children;
             columnRow[clickedColumn].children[0].classList.remove(player1 ? "black" : "white");
             columnRow[clickedColumn].children[0].classList.add(player1 ? "white" : "black");
             boardData[row][clickedColumn] = player1;
         }
     }
 
-    return resultsObject.isValid;
+    return atLeastOneValidResult;
 }
 
 function checkForValidMove(row, column, player1, resultsObject){
