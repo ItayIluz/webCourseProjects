@@ -1,5 +1,5 @@
 
-const BOARD_DIMENSION = 8;
+const BOARD_DIMENSION = 4;
 let timeCounter;
 let gameData = {
     board: [],
@@ -74,8 +74,8 @@ function buildBoardAndInitGame(){
             } else {
                 gameData.board[row][column] = { element: divPiece, isPlayer1: null};
                 divPiece.onclick = () => {
-                    if(isValidMove(row, column, gameData.player1sTurn)){
-                        let scoreChange = changePlayerPieces(row, column, gameData.player1sTurn);
+                    if(isValidMove(row, column)){
+                        let scoreChange = changePlayerPieces(row, column);
                         
                         updateGameData(scoreChange)
                         updateStatistics();
@@ -106,16 +106,26 @@ function buildBoardAndInitGame(){
     timeCounter = setInterval(updateGameTime, 1000);
 }
 
+function checkForPossibleValidMoves(){
+    for(let row = 0; row < BOARD_DIMENSION; row++){
+        for(let column = 0; column < BOARD_DIMENSION; column++){
+            if(isValidMove(row, column))
+                return true;
+        }
+    }
+    return false;
+}
+
 function checkEndgame(){
-    if(gameData.player1Score == 0 || gameData.player2Score == 0 || (gameData.player1Score + gameData.player2Score == BOARD_DIMENSION*2)){
+    if(!checkForPossibleValidMoves() || gameData.player1Score == 0 || gameData.player2Score == 0 || (gameData.player1Score + gameData.player2Score == BOARD_DIMENSION*BOARD_DIMENSION)){
         if(gameData.player1Score > gameData.player2Score){ // Player 1 wins
             gameData.player1Wins++;
-             // Update message
+            alert("Game Over - Player 1 is the winner!"); // Update message
         } else if (gameData.player2Score > gameData.player1Score) { // Player 2 wins
             gameData.player2Wins++;
-             // Update message
+            alert("Game Over - Player 2 is the winner!"); // Update message
         } else { // It's a tie
-            // Update message
+            alert("Game Over - It's a tie!"); // Update message
         }
         clearInterval(timeCounter);
     }
@@ -138,10 +148,10 @@ function updateGameData(scoreChange){
 
     gameData.player1sTurn = !gameData.player1sTurn; // Change turn
     gameData.totalTurns++; // Increment total turns
-    gameData.averageTurnTime = gameData.gameTime / gameData.totalTurns;
+    gameData.averageTurnTime = gameData.gameTime / gameData.totalTurns; // Calculate average turn time
 }
 
-function changePlayerPieces(clickedRow, clickedColumn, player1){
+function changePlayerPieces(clickedRow, clickedColumn){
 
     let piecesToChange = [], rowCheck, columnCheck, scoreToAdd = 0;
 
@@ -160,7 +170,7 @@ function changePlayerPieces(clickedRow, clickedColumn, player1){
             let possiblePieces = [];
 
             // Look for valid pieces and pieces with opposite color
-            while (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == !player1) {
+            while (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == !gameData.player1sTurn) {
 
                 possiblePieces.push([rowCheck, columnCheck]);
 
@@ -171,7 +181,7 @@ function changePlayerPieces(clickedRow, clickedColumn, player1){
 
             if (possiblePieces.length) { // Found possible pieces to change
                 // Check that the next piece is of the current player's color
-                if (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == player1) {
+                if (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == gameData.player1sTurn) {
 
                     // If so, add the last piece to the list to of pieces to change
                     piecesToChange.push([clickedRow, clickedColumn]);
@@ -185,14 +195,14 @@ function changePlayerPieces(clickedRow, clickedColumn, player1){
     
     // Change pieces
     for (let i = 0; i < piecesToChange.length; i++) {
-        if(gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 != player1){
+        if(gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 != gameData.player1sTurn){
             scoreToAdd++;
             let pieceData = gameData.board[piecesToChange[i][0]][piecesToChange[i][1]];
-            pieceData.element.classList.remove(player1 ? "black" : "white");
-            pieceData.element.classList.add(player1 ? "white" : "black");
-            pieceData.element.classList.add(player1 ? "white" : "black");
+            pieceData.element.classList.remove(gameData.player1sTurn ? "black" : "white");
+            pieceData.element.classList.add(gameData.player1sTurn ? "white" : "black");
+            pieceData.element.classList.add(gameData.player1sTurn ? "white" : "black");
             pieceData.element.onclick = undefined;
-            pieceData.isPlayer1 = player1;
+            pieceData.isPlayer1 = gameData.player1sTurn;
         }
     }
 
@@ -204,7 +214,7 @@ function isValidPosition(row, column){
     return (row >= 0 && row < BOARD_DIMENSION) && (column >= 0 && column < BOARD_DIMENSION);
 }
 
-function isValidMove(clickedRow, clickedColumn, player1){ // player1 is white
+function isValidMove(clickedRow, clickedColumn){
 
     let rowCheck, columnCheck;
 
@@ -226,7 +236,7 @@ function isValidMove(clickedRow, clickedColumn, player1){ // player1 is white
             let pieceFound = false; 
 
              // Look for valid pieces and pieces with opposite color
-            while (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == !player1) {
+            while (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == !gameData.player1sTurn) {
 
                 // Move to next position
                 rowCheck += rowDirection;
@@ -237,7 +247,7 @@ function isValidMove(clickedRow, clickedColumn, player1){ // player1 is white
 
             if (pieceFound) {
                 // Check that the next piece is of the current player's color
-                if (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == player1)
+                if (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == gameData.player1sTurn)
                     return true; // Done - Valid move
             }
         }
