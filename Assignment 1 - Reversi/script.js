@@ -1,5 +1,5 @@
 
-const BOARD_DIMENSION = 4;
+const BOARD_DIMENSION = 8;
 let timeCounter;
 let gameData = {
     board: [],
