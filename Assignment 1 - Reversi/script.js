@@ -1,4 +1,3 @@
-
 const BOARD_DIMENSION = 8;
 let timeCounter;
 let gameData = {
@@ -17,47 +16,47 @@ let gameData = {
 };
 let statisticsElements;
 
-function updateGameTime(){
-    gameData.gameTime++
-    statisticsElements.gameTimeSpan.innerHTML = "Game Time: " + formatTime(gameData.gameTime);
+function updateGameTime() {
+    gameData.gameTime++;
+    statisticsElements.gameTimeSpan.innerHTML = formatTime(gameData.gameTime);
 }
 
-function updateStatistics(){ // TODO Add current player's turn 
-    statisticsElements.totalTurnsSpan.innerHTML = "Total Turns: " + gameData.totalTurns;
-    statisticsElements.averageTurnTimeSpan.innerHTML = "Average Game Turn Time: " + formatTime(gameData.averageTurnTime);
-    statisticsElements.player1ScoreSpan.innerHTML = "Player 1 Score: " + gameData.player1Score;
-    statisticsElements.player2ScoreSpan.innerHTML = "Player 2 Score: " + gameData.player2Score;
-    statisticsElements.player1TwoPiecesCountSpan.innerHTML = "Player 1 Two Pieces Count: " + gameData.player1TwoPiecesCount;
-    statisticsElements.player2TwoPiecesCountSpan.innerHTML = "Player 2 Two Pieces Count: " + gameData.player2TwoPiecesCount;
+function updateStatistics() { // TODO Add current player's turn
+    statisticsElements.totalTurnsSpan.innerHTML = gameData.totalTurns;
+    statisticsElements.averageTurnTimeSpan.innerHTML = formatTime(gameData.averageTurnTime);
+    statisticsElements.player1ScoreSpan.innerHTML = gameData.player1Score;
+    statisticsElements.player2ScoreSpan.innerHTML = gameData.player2Score;
+    statisticsElements.player1TwoPiecesCountSpan.innerHTML = gameData.player1TwoPiecesCount;
+    statisticsElements.player2TwoPiecesCountSpan.innerHTML = gameData.player2TwoPiecesCount;
 }
 
-function formatTime(time){
+function formatTime(time) {
     let minutes = parseInt(time / 60);
     let seconds = parseInt(time - (minutes * 60));
 
-    if(minutes < 10)   
+    if (minutes < 10)
         minutes = "0" + minutes;
 
-    if(seconds < 10)
+    if (seconds < 10)
         seconds = "0" + seconds;
 
     return minutes + ":" + seconds;
 }
 
-function buildBoardAndInitGame(){
+function buildBoardAndInitGame() {
 
     let divRow, divCell, divPiece,
         halfBoardDimension = (BOARD_DIMENSION / 2) - 1,
         reverseHalfBoardDimension = BOARD_DIMENSION - 1 - halfBoardDimension,
         gameBoard = document.getElementById("reversi-board");
 
-    for(let row = 0; row < BOARD_DIMENSION; row++){
-        
+    for (let row = 0; row < BOARD_DIMENSION; row++) {
+
         gameData.board[row] = [];
         divRow = document.createElement("div");
         divRow.className = "board-row";
 
-        for(let column = 0; column < BOARD_DIMENSION; column++){
+        for (let column = 0; column < BOARD_DIMENSION; column++) {
             divCell = document.createElement("div");
             divCell.className = "board-cell";
             divRow.append(divCell);
@@ -65,22 +64,22 @@ function buildBoardAndInitGame(){
             divPiece = document.createElement("div");
             divPiece.className = "board-piece";
 
-            if((row == halfBoardDimension && column == halfBoardDimension) || (row == reverseHalfBoardDimension && column == reverseHalfBoardDimension)){
+            if ((row == halfBoardDimension && column == halfBoardDimension) || (row == reverseHalfBoardDimension && column == reverseHalfBoardDimension)) {
                 divPiece.className += " white";
-                gameData.board[row][column] = { element: divPiece, isPlayer1: true }; // player1 - white
-            } else if((row == reverseHalfBoardDimension && column == halfBoardDimension) || (row == halfBoardDimension && column == reverseHalfBoardDimension)){
+                gameData.board[row][column] = {element: divPiece, isPlayer1: true}; // player1 - white
+            } else if ((row == reverseHalfBoardDimension && column == halfBoardDimension) || (row == halfBoardDimension && column == reverseHalfBoardDimension)) {
                 divPiece.className += " black";
-                gameData.board[row][column] = { element: divPiece, isPlayer1: false}; // player2 - black
+                gameData.board[row][column] = {element: divPiece, isPlayer1: false}; // player2 - black
             } else {
-                gameData.board[row][column] = { element: divPiece, isPlayer1: null};
+                gameData.board[row][column] = {element: divPiece, isPlayer1: null};
                 divPiece.onclick = () => {
-                    if(isValidMove(row, column)){
+                    if (isValidMove(row, column)) {
                         let scoreChange = changePlayerPieces(row, column);
-                        
+
                         updateGameData(scoreChange)
                         updateStatistics();
                         checkEndgame();
-                    }else
+                    } else
                         alert("You can't place a piece there!");
                 };
             }
@@ -89,7 +88,7 @@ function buildBoardAndInitGame(){
         }
 
         gameBoard.append(divRow);
-    } 
+    }
 
     // Get easy access to statistics elements
     statisticsElements = {
@@ -106,19 +105,19 @@ function buildBoardAndInitGame(){
     timeCounter = setInterval(updateGameTime, 1000);
 }
 
-function checkForPossibleValidMoves(){
-    for(let row = 0; row < BOARD_DIMENSION; row++){
-        for(let column = 0; column < BOARD_DIMENSION; column++){
-            if(isValidMove(row, column))
+function checkForPossibleValidMoves() {
+    for (let row = 0; row < BOARD_DIMENSION; row++) {
+        for (let column = 0; column < BOARD_DIMENSION; column++) {
+            if (isValidMove(row, column))
                 return true;
         }
     }
     return false;
 }
 
-function checkEndgame(){
-    if(!checkForPossibleValidMoves() || gameData.player1Score == 0 || gameData.player2Score == 0 || (gameData.player1Score + gameData.player2Score == BOARD_DIMENSION*BOARD_DIMENSION)){
-        if(gameData.player1Score > gameData.player2Score){ // Player 1 wins
+function checkEndgame() {
+    if (!checkForPossibleValidMoves() || gameData.player1Score == 0 || gameData.player2Score == 0 || (gameData.player1Score + gameData.player2Score == BOARD_DIMENSION * BOARD_DIMENSION)) {
+        if (gameData.player1Score > gameData.player2Score) { // Player 1 wins
             gameData.player1Wins++;
             alert("Game Over - Player 1 is the winner!"); // Update message
         } else if (gameData.player2Score > gameData.player1Score) { // Player 2 wins
@@ -131,19 +130,19 @@ function checkEndgame(){
     }
 }
 
-function updateGameData(scoreChange){
-    if(gameData.player1sTurn){ // Update score
+function updateGameData(scoreChange) {
+    if (gameData.player1sTurn) { // Update score
         gameData.player1Score += scoreChange;
-        gameData.player2Score -= (scoreChange-1);
+        gameData.player2Score -= (scoreChange - 1);
     } else {
         gameData.player2Score += scoreChange;
-        gameData.player1Score -= (scoreChange-1);
+        gameData.player1Score -= (scoreChange - 1);
     }
 
-    if(gameData.player1Score == 2)
+    if (gameData.player1Score == 2)
         gameData.player1TwoPiecesCount++;
 
-    if(gameData.player2Score == 2)
+    if (gameData.player2Score == 2)
         gameData.player2TwoPiecesCount++
 
     gameData.player1sTurn = !gameData.player1sTurn; // Change turn
@@ -151,7 +150,7 @@ function updateGameData(scoreChange){
     gameData.averageTurnTime = gameData.gameTime / gameData.totalTurns; // Calculate average turn time
 }
 
-function changePlayerPieces(clickedRow, clickedColumn){
+function changePlayerPieces(clickedRow, clickedColumn) {
 
     let piecesToChange = [], rowCheck, columnCheck, scoreToAdd = 0;
 
@@ -192,10 +191,10 @@ function changePlayerPieces(clickedRow, clickedColumn){
             }
         }
     }
-    
+
     // Change pieces
     for (let i = 0; i < piecesToChange.length; i++) {
-        if(gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 != gameData.player1sTurn){
+        if (gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 != gameData.player1sTurn) {
             scoreToAdd++;
             let pieceData = gameData.board[piecesToChange[i][0]][piecesToChange[i][1]];
             pieceData.element.classList.remove(gameData.player1sTurn ? "black" : "white");
@@ -210,11 +209,11 @@ function changePlayerPieces(clickedRow, clickedColumn){
 }
 
 // Check board boundaries
-function isValidPosition(row, column){
+function isValidPosition(row, column) {
     return (row >= 0 && row < BOARD_DIMENSION) && (column >= 0 && column < BOARD_DIMENSION);
 }
 
-function isValidMove(clickedRow, clickedColumn){
+function isValidMove(clickedRow, clickedColumn) {
 
     let rowCheck, columnCheck;
 
@@ -233,16 +232,16 @@ function isValidMove(clickedRow, clickedColumn){
             rowCheck = clickedRow + rowDirection;
             columnCheck = clickedColumn + columnDirection;
 
-            let pieceFound = false; 
+            let pieceFound = false;
 
-             // Look for valid pieces and pieces with opposite color
+            // Look for valid pieces and pieces with opposite color
             while (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 != null && gameData.board[rowCheck][columnCheck].isPlayer1 == !gameData.player1sTurn) {
 
                 // Move to next position
                 rowCheck += rowDirection;
                 columnCheck += columnDirection;
 
-                pieceFound = true; 
+                pieceFound = true;
             }
 
             if (pieceFound) {
