@@ -81,7 +81,7 @@ body, html {
     border: 3px solid rgba(52, 150, 70, .6);
 }
 
-.board-cell.show-score .board-piece::before {
+.board-cell .board-piece::before {
     content: attr(score);
     display: block;
     position: absolute;
@@ -92,7 +92,7 @@ body, html {
     background: rgba(200, 10, 100, .7);
     animation: riseAndShow 1s ease-in forwards;
     transform: translate(0, 20px);
-    border-radius: 100%;
+    border-radius: 3px;
     opacity: 0;
 }
 
@@ -144,7 +144,7 @@ body, html {
 }
 
 .statistics-field-name{
-    
+
 }
 .statistics-field-container:not(last-child) {
     margin-bottom: 15px;
