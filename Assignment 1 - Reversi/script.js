@@ -66,37 +66,40 @@ function buildBoardAndInitGame() {
 
             if ((row === halfBoardDimension && column === halfBoardDimension) || (row === reverseHalfBoardDimension && column === reverseHalfBoardDimension)) {
                 divCell.className += " white";
-                gameData.board[row][column] = {element: divCell, isPlayer1: true}; // player1 - white
+                gameData.board[row][column] = {element: divCell, isPlayer1: true, possiblePieces: []}; // player1 - white
             } else if ((row === reverseHalfBoardDimension && column === halfBoardDimension) || (row === halfBoardDimension && column === reverseHalfBoardDimension)) {
                 divCell.className += " black";
-                gameData.board[row][column] = {element: divCell, isPlayer1: false}; // player2 - black
+                gameData.board[row][column] = {element: divCell, isPlayer1: false, possiblePieces: []}; // player2 - black
             } else {
-                divCell.className += " show-score";
-                gameData.board[row][column] = {element: divCell, isPlayer1: null};
+                gameData.board[row][column] = {element: divCell, isPlayer1: null, possiblePieces: []};
                 divCell.dataset.score = "";
 
                 divCell.onclick = function(){
-                    let scoreData = parseInt(this.dataset.score) || 0;
+                    let cellData = gameData.board[row][column];
                     
-                    if (scoreData !== 0) {
-                        changePlayerPieces(row, column);
-                        updateGameData(scoreData)
+                    if (cellData.possiblePieces.length > 0) {
+                        this.classList.remove("show-score");
+                        changePlayerPieces(cellData.possiblePieces);
+                        updateGameData(parseInt(this.dataset.score))
                         updateStatistics();
                         checkEndgame();
-                    } else
-                        alert("You can't place a piece there!");
+                    }
                 };
 
                 divCell.onmouseover = function(){
-                    let possibleScore = isValidMove(row, column);
-                    if(possibleScore !== 0){
-                        this.classList.add("can-place"); 
-                        this.dataset.score = possibleScore;
+                    let result = checkForPossibleMoves(row, column);
+                    gameData.board[row][column].possiblePieces = result.finalPossiblePieces;
+                    if(result.possibleScore !== 0){
+                        this.classList.add("can-place");
+                        this.classList.add("show-score");
+                        this.dataset.score = result.possibleScore;
                     }                                     
                 };
 
                 divCell.onmouseout = function(){
+                    gameData.board[row][column].possiblePieces = [];
                     this.classList.remove("can-place");
+                    this.classList.remove("show-score");
                     this.dataset.score = "";     
                 };
             }
@@ -122,10 +125,10 @@ function buildBoardAndInitGame() {
     timeCounter = setInterval(updateGameTime, 1000);
 }
 
-function checkForPossibleValidMoves() {
+function areThereMovesLeft() {
     for (let row = 0; row < BOARD_DIMENSION; row++) {
         for (let column = 0; column < BOARD_DIMENSION; column++) {
-            if (isValidMove(row, column) !== 0)
+            if(checkForPossibleMoves(row, column).possibleScore !== 0)
                 return true;
         }
     }
@@ -133,7 +136,8 @@ function checkForPossibleValidMoves() {
 }
 
 function checkEndgame() {
-    if (!checkForPossibleValidMoves() || gameData.player1Score === 0 || gameData.player2Score === 0 || (gameData.player1Score + gameData.player2Score === BOARD_DIMENSION * BOARD_DIMENSION)) {
+    
+    if (!areThereMovesLeft() || gameData.player1Score === 0 || gameData.player2Score === 0 || (gameData.player1Score + gameData.player2Score === BOARD_DIMENSION * BOARD_DIMENSION)) {
         if (gameData.player1Score > gameData.player2Score) { // Player 1 wins
             gameData.player1Wins++;
             alert("Game Over - Player 1 is the winner!"); // Update message
@@ -167,9 +171,31 @@ function updateGameData(scoreChange) {
     gameData.averageTurnTime = gameData.gameTime / gameData.totalTurns; // Calculate average turn time
 }
 
-function changePlayerPieces(clickedRow, clickedColumn) {
+function changePlayerPieces(piecesToChange) {
+    // Change pieces
+    for (let i = 0; i < piecesToChange.length; i++) {
+        if (gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 !== gameData.player1sTurn) {
+            let cellData = gameData.board[piecesToChange[i][0]][piecesToChange[i][1]];
+            cellData.element.classList.remove(gameData.player1sTurn ? "black" : "white");
+            cellData.element.classList.add(gameData.player1sTurn ? "white" : "black");
+            cellData.element.classList.add(gameData.player1sTurn ? "white" : "black");
+            cellData.element.onclick = undefined;
+            cellData.isPlayer1 = gameData.player1sTurn;
+        }
+    }
+}
 
-    let piecesToChange = [], rowCheck, columnCheck;
+// Check board boundaries
+function isValidPosition(row, column) {
+    return (row >= 0 && row < BOARD_DIMENSION) && (column >= 0 && column < BOARD_DIMENSION);
+}
+
+function checkForPossibleMoves(clickedRow, clickedColumn) {
+
+    let rowCheck, columnCheck, result = {possibleScore: 0, finalPossiblePieces: []};
+
+    if (!isValidPosition(clickedRow, clickedColumn) || gameData.board[clickedRow][clickedColumn].isPlayer1 !== null)
+        return result;
 
     // Check all eight directions
     for (let rowDirection = -1; rowDirection <= 1; rowDirection++) {
@@ -193,94 +219,27 @@ function changePlayerPieces(clickedRow, clickedColumn) {
                 // Move to next position
                 rowCheck += rowDirection;
                 columnCheck += columnDirection;
+
             }
 
-            if (possiblePieces.length) { // Found possible pieces to change
+            if (possiblePieces.length !== 0) { // Found possible pieces to change
                 // Check that the next piece is of the current player's color
                 if (this.isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 !== null && gameData.board[rowCheck][columnCheck].isPlayer1 === gameData.player1sTurn) {
-
-                    // If so, add the last piece to the list to of pieces to change
-                    piecesToChange.push([clickedRow, clickedColumn]);
-
-                    for (let piece in possiblePieces) // And add the rest of the pieces to change
-                        piecesToChange.push(possiblePieces[piece]);
+                    // Move is valid, add all possible pieces the final result
+                    for (let piece in possiblePieces)
+                        result.finalPossiblePieces.push(possiblePieces[piece]);
                 }
             }
         }
     }
-
-    // Change pieces
-    for (let i = 0; i < piecesToChange.length; i++) {
-        if (gameData.board[piecesToChange[i][0]][piecesToChange[i][1]].isPlayer1 !== gameData.player1sTurn) {
-            let cellData = gameData.board[piecesToChange[i][0]][piecesToChange[i][1]];
-            cellData.element.classList.remove(gameData.player1sTurn ? "black" : "white");
-            cellData.element.classList.add(gameData.player1sTurn ? "white" : "black");
-            cellData.element.classList.add(gameData.player1sTurn ? "white" : "black");
-            cellData.element.onclick = undefined;
-            cellData.isPlayer1 = gameData.player1sTurn;
+    
+    if(result.finalPossiblePieces.length > 0) {
+        result.finalPossiblePieces.push([clickedRow, clickedColumn]); // Add the piece in the clicked location
+        for (let i = 0; i < result.finalPossiblePieces.length; i++) {
+            if (gameData.board[result.finalPossiblePieces[i][0]][result.finalPossiblePieces[i][1]].isPlayer1 !== gameData.player1sTurn)
+                result.possibleScore++;
         }
     }
-}
 
-// Check board boundaries
-function isValidPosition(row, column) {
-    return (row >= 0 && row < BOARD_DIMENSION) && (column >= 0 && column < BOARD_DIMENSION);
-}
-
-function isValidMove(clickedRow, clickedColumn) {
-
-    let rowCheck, columnCheck, finalPossiblePieces = [];
-
-    if (!isValidPosition(clickedRow, clickedColumn) || gameData.board[clickedRow][clickedColumn].isPlayer1 !== null)
-        return 0;
-
-    // Check all eight directions
-    for (let rowDirection = -1; rowDirection <= 1; rowDirection++) {
-
-        for (let columnDirection = -1; columnDirection <= 1; columnDirection++) {
-
-            if (rowDirection === 0 && columnDirection === 0) // Skip the clicked position
-                continue;
-
-            // Move to next piece
-            rowCheck = clickedRow + rowDirection;
-            columnCheck = clickedColumn + columnDirection;
-
-            let pieceFound = false;
-            let possiblePieces = [];
-
-            // Look for valid pieces and pieces with opposite color
-            while (isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 !== null && gameData.board[rowCheck][columnCheck].isPlayer1 === !gameData.player1sTurn) {
-
-                // Add to possible pieces
-                possiblePieces.push([rowCheck, columnCheck]);
-
-                // Move to next position
-                rowCheck += rowDirection;
-                columnCheck += columnDirection;
-                
-                pieceFound = true;
-            }
-
-            if (pieceFound) {
-                // Check that the next piece is of the current player's color
-                if (isValidPosition(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 !== null && gameData.board[rowCheck][columnCheck].isPlayer1 === gameData.player1sTurn){
-
-                    let possibleScore = 0;;
-                    finalPossiblePieces.push([clickedRow, clickedColumn]); // Add the last piece to the list to of pieces to change
-
-                    for (let piece in possiblePieces) // Add the rest of the pieces to change
-                        finalPossiblePieces.push(possiblePieces[piece]);
-                    
-                    for (let i = 0; i < finalPossiblePieces.length; i++) { // Calculate possible score
-                        if (gameData.board[finalPossiblePieces[i][0]][finalPossiblePieces[i][1]].isPlayer1 !== gameData.player1sTurn) 
-                            possibleScore++;
-                    }
-
-                    return possibleScore; // Done - Valid move
-                }
-            }
-        }
-    }
-    return 0; // Done - Invalid move
+    return result;
 }
