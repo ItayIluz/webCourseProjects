@@ -157,3 +157,13 @@ body, html {
     background: rgba(200,200,200,.3);
     padding: 10px;
 }
+
+.player-controls-container {
+    margin: 30px;
+    min-width: 300px;
+}
+
+.player-controls-container div {
+    padding: 5px;
+    margin: 5px;
+}

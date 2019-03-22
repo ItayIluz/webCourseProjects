@@ -13,7 +13,20 @@
 </header>
 <div class="game-view">
     <div id="reversi-game" class="game-container">
-        <div class="spacer">
+        <div id="player-controls" class="player-controls-container">
+            <div>
+                <label class="current-players-turn-container">Current Player's Turn: </label><span id="current-players-turn"></span>
+            </div>
+            <div>
+                <label class="show-score-label">Show score: </label>
+                <input type="checkbox" id="show-score-checkbox" class="show-score-checkbox" onclick="toggleShowScore()" checked/>
+            </div>
+            <div>
+                <button id="quit-button" class="quit-button" onclick="playerQuitGame()">Quit Game</button>
+            </div>
+            <div>
+                <button id="restart-game-button" class="restart-game-button" onclick="restartGame()">Restart Game</button>
+            </div>
         </div>
         <div class="height-cancel">
             <div class="board-container">

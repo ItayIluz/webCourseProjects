@@ -13,21 +13,22 @@ let gameData = {
     gameTime: 0,
     turnTime: 0,
     averageTurnTime: 0,
+    showScore: true,
 };
-let statisticsElements;
+let gameElements;
 
 function updateGameTime() {
     gameData.gameTime++;
-    statisticsElements.gameTimeSpan.innerHTML = formatTime(gameData.gameTime);
+    gameElements.gameTimeSpan.innerHTML = formatTime(gameData.gameTime);
 }
 
 function updateStatistics() { // TODO Add current player's turn
-    statisticsElements.totalTurnsSpan.innerHTML = gameData.totalTurns;
-    statisticsElements.averageTurnTimeSpan.innerHTML = formatTime(gameData.averageTurnTime);
-    statisticsElements.player1ScoreSpan.innerHTML = gameData.player1Score;
-    statisticsElements.player2ScoreSpan.innerHTML = gameData.player2Score;
-    statisticsElements.player1TwoPiecesCountSpan.innerHTML = gameData.player1TwoPiecesCount;
-    statisticsElements.player2TwoPiecesCountSpan.innerHTML = gameData.player2TwoPiecesCount;
+    gameElements.totalTurnsSpan.innerHTML = gameData.totalTurns;
+    gameElements.averageTurnTimeSpan.innerHTML = formatTime(gameData.averageTurnTime);
+    gameElements.player1ScoreSpan.innerHTML = gameData.player1Score;
+    gameElements.player2ScoreSpan.innerHTML = gameData.player2Score;
+    gameElements.player1TwoPiecesCountSpan.innerHTML = gameData.player1TwoPiecesCount;
+    gameElements.player2TwoPiecesCountSpan.innerHTML = gameData.player2TwoPiecesCount;
 }
 
 function formatTime(time) {
@@ -43,11 +44,90 @@ function formatTime(time) {
     return minutes + ":" + seconds;
 }
 
+function initializeGame(){
+
+    let halfBoardDimension = (BOARD_DIMENSION / 2) - 1,
+        reverseHalfBoardDimension = BOARD_DIMENSION - 1 - halfBoardDimension;
+
+    gameData.player1sTurn = true;
+    gameData.player1Score = 2;
+    gameData.player2Score = 2;
+    gameData.player1TwoPiecesCount = 1;
+    gameData.player2TwoPiecesCount = 1;
+    gameData.totalTurns = 0;
+    gameData.gameTime = 0;
+    gameData.turnTime = 0;
+    gameData.averageTurnTime = 0;
+
+    for (let row = 0; row < BOARD_DIMENSION; row++) {
+
+        for (let column = 0; column < BOARD_DIMENSION; column++) {
+
+            let boardCell = gameData.board[row][column];
+
+            if ((row === halfBoardDimension && column === halfBoardDimension) || (row === reverseHalfBoardDimension && column === reverseHalfBoardDimension)) {
+                boardCell.element.className = "board-cell white"; // player1 - white
+                boardCell.element.onclick = undefined;
+                boardCell.element.onmouseover = undefined;
+                boardCell.element.onmouseout = undefined;
+                boardCell.isPlayer1 = true;
+                boardCell.possiblePieces = []; 
+            } else if ((row === reverseHalfBoardDimension && column === halfBoardDimension) || (row === halfBoardDimension && column === reverseHalfBoardDimension)) {
+                boardCell.element.className = "board-cell black"; // player1 - black
+                boardCell.element.onclick = undefined;
+                boardCell.element.onmouseover = undefined;
+                boardCell.element.onmouseout = undefined;
+                boardCell.isPlayer1 = false;
+                boardCell.possiblePieces = []; 
+            } else {
+                boardCell.element.className = "board-cell";
+                boardCell.isPlayer1 = null;
+                boardCell.possiblePieces = []; 
+                boardCell.element.dataset.score = "";
+
+                boardCell.element.onclick = function(){
+                    let cellData = gameData.board[row][column];
+                    
+                    if (cellData.possiblePieces.length > 0) {
+                        this.classList.remove("show-score");
+                        this.classList.remove("can-place");
+                        changePlayerPieces(cellData.possiblePieces);
+                        updateGameData(parseInt(this.dataset.score))
+                        updateStatistics();
+                        checkEndgame();
+                    }
+                };
+
+                boardCell.element.onmouseover = function(){
+                    let result = checkForPossibleMoves(row, column);
+                    gameData.board[row][column].possiblePieces = result.finalPossiblePieces;
+                    if(result.possibleScore !== 0){
+                        this.classList.add("can-place");
+                        this.dataset.score = result.possibleScore;
+                        if(gameData.showScore)
+                            this.classList.add("show-score");
+                    }                                     
+                };
+
+                boardCell.element.onmouseout = function(){
+                    gameData.board[row][column].possiblePieces = [];
+                    this.classList.remove("can-place");
+                    this.classList.remove("show-score");
+                    this.dataset.score = "";     
+                };
+            }
+        }
+    }
+
+    gameElements.restartGameButton.hidden = true;
+    gameElements.currentPlayersTurnSpan.innerHTML = "Player 1 (White)";
+    updateStatistics();
+    timeCounter = setInterval(updateGameTime, 1000);
+}
+
 function buildBoardAndInitGame() {
 
     let divRow, divCell, divPiece,
-        halfBoardDimension = (BOARD_DIMENSION / 2) - 1,
-        reverseHalfBoardDimension = BOARD_DIMENSION - 1 - halfBoardDimension,
         gameBoard = document.getElementById("reversi-board");
 
     for (let row = 0; row < BOARD_DIMENSION; row++) {
@@ -64,65 +144,27 @@ function buildBoardAndInitGame() {
             divPiece = document.createElement("div");
             divPiece.className = "board-piece";
 
-            if ((row === halfBoardDimension && column === halfBoardDimension) || (row === reverseHalfBoardDimension && column === reverseHalfBoardDimension)) {
-                divCell.className += " white";
-                gameData.board[row][column] = {element: divCell, isPlayer1: true, possiblePieces: []}; // player1 - white
-            } else if ((row === reverseHalfBoardDimension && column === halfBoardDimension) || (row === halfBoardDimension && column === reverseHalfBoardDimension)) {
-                divCell.className += " black";
-                gameData.board[row][column] = {element: divCell, isPlayer1: false, possiblePieces: []}; // player2 - black
-            } else {
-                gameData.board[row][column] = {element: divCell, isPlayer1: null, possiblePieces: []};
-                divCell.dataset.score = "";
-
-                divCell.onclick = function(){
-                    let cellData = gameData.board[row][column];
-                    
-                    if (cellData.possiblePieces.length > 0) {
-                        this.classList.remove("show-score");
-                        changePlayerPieces(cellData.possiblePieces);
-                        updateGameData(parseInt(this.dataset.score))
-                        updateStatistics();
-                        checkEndgame();
-                    }
-                };
-
-                divCell.onmouseover = function(){
-                    let result = checkForPossibleMoves(row, column);
-                    gameData.board[row][column].possiblePieces = result.finalPossiblePieces;
-                    if(result.possibleScore !== 0){
-                        this.classList.add("can-place");
-                        this.classList.add("show-score");
-                        this.dataset.score = result.possibleScore;
-                    }                                     
-                };
-
-                divCell.onmouseout = function(){
-                    gameData.board[row][column].possiblePieces = [];
-                    this.classList.remove("can-place");
-                    this.classList.remove("show-score");
-                    this.dataset.score = "";     
-                };
-            }
-
+            gameData.board[row][column] = {element: divCell};
             divCell.append(divPiece);
         }
 
         gameBoard.append(divRow);
     }
 
-    // Get easy access to statistics elements
-    statisticsElements = {
+    // Get easy access to game HTML elements
+    gameElements = {
         gameTimeSpan: document.getElementById("statistics-game-time"),
         totalTurnsSpan: document.getElementById("statistics-total-turns"),
         averageTurnTimeSpan: document.getElementById("statistics-average-turn-time"),
         player1ScoreSpan: document.getElementById("statistics-player1-score"),
         player2ScoreSpan: document.getElementById("statistics-player2-score"),
         player1TwoPiecesCountSpan: document.getElementById("statistics-player1-two-pieces-count"),
-        player2TwoPiecesCountSpan: document.getElementById("statistics-player2-two-pieces-count")
+        player2TwoPiecesCountSpan: document.getElementById("statistics-player2-two-pieces-count"),
+        currentPlayersTurnSpan: document.getElementById("current-players-turn"),
+        restartGameButton: document.getElementById("restart-game-button"),
     };
 
-    updateStatistics();
-    timeCounter = setInterval(updateGameTime, 1000);
+    initializeGame();
 }
 
 function areThereMovesLeft() {
@@ -148,6 +190,7 @@ function checkEndgame() {
             alert("Game Over - It's a tie!"); // Update message
         }
         clearInterval(timeCounter);
+        gameElements.restartGameButton.hidden = false;
     }
 }
 
@@ -169,6 +212,7 @@ function updateGameData(scoreChange) {
     gameData.player1sTurn = !gameData.player1sTurn; // Change turn
     gameData.totalTurns++; // Increment total turns
     gameData.averageTurnTime = gameData.gameTime / gameData.totalTurns; // Calculate average turn time
+    gameElements.currentPlayersTurnSpan.innerHTML = (gameData.player1sTurn ? "Player 1 (White)" : "Player 2 (Black)");
 }
 
 function changePlayerPieces(piecesToChange) {
@@ -180,6 +224,8 @@ function changePlayerPieces(piecesToChange) {
             cellData.element.classList.add(gameData.player1sTurn ? "white" : "black");
             cellData.element.classList.add(gameData.player1sTurn ? "white" : "black");
             cellData.element.onclick = undefined;
+            cellData.element.onmouseover = undefined;
+            cellData.element.onmouseout = undefined;
             cellData.isPlayer1 = gameData.player1sTurn;
         }
     }
@@ -242,4 +288,34 @@ function checkForPossibleMoves(clickedRow, clickedColumn) {
     }
 
     return result;
+}
+
+function playerQuitGame(){
+
+    if(gameData.player1sTurn){
+        gameData.player2Wins++;
+        alert("Player 1 quit - Player 2 is the winner!"); // Update message
+    } else {
+        gameData.player1Wins++;
+        alert("Player 2 quit - Player 1 is the winner!"); // Update message
+    }
+    clearInterval(timeCounter);
+    gameElements.restartGameButton.hidden = false;
+}
+
+function toggleShowScore(){
+    gameData.showScore = !gameData.showScore;
+}
+
+function restartGame(){
+    gameData.player1sTurn = true;
+    gameData.player1Score = 2;
+    gameData.player2Score = 2;
+    gameData.player1TwoPiecesCount = 1;
+    gameData.player2TwoPiecesCount = 1;
+    gameData.totalTurns = 0;
+    gameData.gameTime = 0;
+    gameData.turnTime = 0;
+    gameData.averageTurnTime = 0;    
+    initializeGame();
 }
