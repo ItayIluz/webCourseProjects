@@ -74,14 +74,14 @@ body, html {
     border: 1px solid black;
     flex-grow: 1;
     padding: 1%;
-    box-shadow: inset rgba(0,0,0,.6) 3px 3px 5px;
+    box-shadow: inset rgba(0, 0, 0, .6) 3px 3px 2px;
 }
 
-.board-cell.can-place .board-piece {
-    border: 3px solid rgba(52, 150, 70, .6);
+.board-cell.can-place .board-piece:hover {
+    box-shadow: white 0 0 10px, white 0 0 15px;
 }
 
-.board-cell.show-score::before {
+.assist-score .board-cell.can-place:hover::before {
     content: attr(data-score);
     display: block;
     position: absolute;
@@ -120,13 +120,13 @@ body, html {
 .black .board-piece {
     border: 1px solid black;
     background-color: black;
-    box-shadow: rgba(0, 0, 0, .7) 5px 5px 10px;
+    box-shadow: rgba(0, 0, 0, .7) 3px 3px 2px, inset rgba(255, 255, 255, .3) 3px 3px 2px;
 }
 
 .white .board-piece {
     border: 1px solid black;
     background-color: white;
-    box-shadow: rgba(0, 0, 0, .7) 5px 5px 10px;
+    box-shadow: rgba(0, 0, 0, .7) 3px 3px 2px, inset rgba(0, 0, 0, .3) -3px -3px 2px;
 }
 
 .sidebar {
@@ -139,22 +139,19 @@ body, html {
     padding: 20px 10px 0 10px;
 }
 
-.statistics-field-container{
+.statistics-field-container {
     display: flex;
     justify-content: space-between;
 }
 
-.statistics-field-name{
-
-}
 .statistics-field-container:not(last-child) {
     margin-bottom: 15px;
 }
 
-.statistics-data{
+.statistics-data {
     max-width: 100px;
     width: 100px;
-    background: rgba(200,200,200,.3);
+    background: rgba(200, 200, 200, .3);
     padding: 10px;
 }
 

@@ -44,7 +44,7 @@ function formatTime(time) {
     return minutes + ":" + seconds;
 }
 
-function initializeGame(){
+function initializeGame() {
 
     let halfBoardDimension = (BOARD_DIMENSION / 2) - 1,
         reverseHalfBoardDimension = BOARD_DIMENSION - 1 - halfBoardDimension;
@@ -71,23 +71,23 @@ function initializeGame(){
                 boardCell.element.onmouseover = undefined;
                 boardCell.element.onmouseout = undefined;
                 boardCell.isPlayer1 = true;
-                boardCell.possiblePieces = []; 
+                boardCell.possiblePieces = [];
             } else if ((row === reverseHalfBoardDimension && column === halfBoardDimension) || (row === halfBoardDimension && column === reverseHalfBoardDimension)) {
                 boardCell.element.className = "board-cell black"; // player1 - black
                 boardCell.element.onclick = undefined;
                 boardCell.element.onmouseover = undefined;
                 boardCell.element.onmouseout = undefined;
                 boardCell.isPlayer1 = false;
-                boardCell.possiblePieces = []; 
+                boardCell.possiblePieces = [];
             } else {
                 boardCell.element.className = "board-cell";
                 boardCell.isPlayer1 = null;
-                boardCell.possiblePieces = []; 
+                boardCell.possiblePieces = [];
                 boardCell.element.dataset.score = "";
 
-                boardCell.element.onclick = function(){
+                boardCell.element.onclick = function () {
                     let cellData = gameData.board[row][column];
-                    
+
                     if (cellData.possiblePieces.length > 0) {
                         this.classList.remove("show-score");
                         this.classList.remove("can-place");
@@ -98,22 +98,22 @@ function initializeGame(){
                     }
                 };
 
-                boardCell.element.onmouseover = function(){
+                boardCell.element.onmouseover = function () {
                     let result = checkForPossibleMoves(row, column);
                     gameData.board[row][column].possiblePieces = result.finalPossiblePieces;
-                    if(result.possibleScore !== 0){
+                    if (result.possibleScore !== 0) {
                         this.classList.add("can-place");
                         this.dataset.score = result.possibleScore;
-                        if(gameData.showScore)
+                        if (gameData.showScore)
                             this.classList.add("show-score");
-                    }                                     
+                    }
                 };
 
-                boardCell.element.onmouseout = function(){
+                boardCell.element.onmouseout = function () {
                     gameData.board[row][column].possiblePieces = [];
                     this.classList.remove("can-place");
                     this.classList.remove("show-score");
-                    this.dataset.score = "";     
+                    this.dataset.score = "";
                 };
             }
         }
@@ -170,7 +170,7 @@ function buildBoardAndInitGame() {
 function areThereMovesLeft() {
     for (let row = 0; row < BOARD_DIMENSION; row++) {
         for (let column = 0; column < BOARD_DIMENSION; column++) {
-            if(checkForPossibleMoves(row, column).possibleScore !== 0)
+            if (checkForPossibleMoves(row, column).possibleScore !== 0)
                 return true;
         }
     }
@@ -178,7 +178,7 @@ function areThereMovesLeft() {
 }
 
 function checkEndgame() {
-    
+
     if (!areThereMovesLeft() || gameData.player1Score === 0 || gameData.player2Score === 0 || (gameData.player1Score + gameData.player2Score === BOARD_DIMENSION * BOARD_DIMENSION)) {
         if (gameData.player1Score > gameData.player2Score) { // Player 1 wins
             gameData.player1Wins++;
@@ -278,8 +278,8 @@ function checkForPossibleMoves(clickedRow, clickedColumn) {
             }
         }
     }
-    
-    if(result.finalPossiblePieces.length > 0) {
+
+    if (result.finalPossiblePieces.length > 0) {
         result.finalPossiblePieces.push([clickedRow, clickedColumn]); // Add the piece in the clicked location
         for (let i = 0; i < result.finalPossiblePieces.length; i++) {
             if (gameData.board[result.finalPossiblePieces[i][0]][result.finalPossiblePieces[i][1]].isPlayer1 !== gameData.player1sTurn)
@@ -290,9 +290,9 @@ function checkForPossibleMoves(clickedRow, clickedColumn) {
     return result;
 }
 
-function playerQuitGame(){
+function playerQuitGame() {
 
-    if(gameData.player1sTurn){
+    if (gameData.player1sTurn) {
         gameData.player2Wins++;
         alert("Player 1 quit - Player 2 is the winner!"); // Update message
     } else {
@@ -303,11 +303,16 @@ function playerQuitGame(){
     gameElements.restartGameButton.hidden = false;
 }
 
-function toggleShowScore(){
+function toggleShowScore(event) {
+    if (event.target.checked) {
+        document.getElementById('reversi-game').classList.add('assist-score');
+    } else {
+        document.getElementById('reversi-game').classList.remove('assist-score');
+    }
     gameData.showScore = !gameData.showScore;
 }
 
-function restartGame(){
+function restartGame() {
     gameData.player1sTurn = true;
     gameData.player1Score = 2;
     gameData.player2Score = 2;
@@ -316,6 +321,6 @@ function restartGame(){
     gameData.totalTurns = 0;
     gameData.gameTime = 0;
     gameData.turnTime = 0;
-    gameData.averageTurnTime = 0;    
+    gameData.averageTurnTime = 0;
     initializeGame();
 }
