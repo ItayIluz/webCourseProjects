@@ -27,7 +27,7 @@
                 <button id="quit-button" class="quit-button" onclick="playerQuitGame()">Quit Game</button>
             </div>
             <div>
-                <button id="restart-game-button" class="restart-game-button" onclick="restartGame()">Restart Game
+                <button id="restart-game-button" class="restart-game-button" onclick="initializeGame()">Restart Game
                 </button>
             </div>
         </div>
@@ -50,10 +50,6 @@
                 <div id="statistics-total-turns" class="statistics-data"></div>
             </div>
             <div class="statistics-field-container">
-                <label class="statistics-field-name">Average Turn Time:</label>
-                <div id="statistics-average-turn-time" class="statistics-data"></div>
-            </div>
-            <div class="statistics-field-container">
                 <label class="statistics-field-name">Player 1 Score:</label>
                 <div id="statistics-player1-score" class="statistics-data"></div>
             </div>
@@ -62,14 +58,30 @@
                 <div id="statistics-player2-score" class="statistics-data"></div>
             </div>
             <div class="statistics-field-container">
-                <label class="statistics-field-name">Player1 Two Pieces Count:</label>
+                <label class="statistics-field-name">Player 1 Two Pieces Count:</label>
                 <div id="statistics-player1-two-pieces-count"
                      class="statistics-data"></div>
             </div>
             <div class="statistics-field-container">
-                <label class="statistics-field-name">Player2 Two Pieces Count:</label>
+                <label class="statistics-field-name">Player 2 Two Pieces Count:</label>
                 <div id="statistics-player2-two-pieces-count"
                      class="statistics-data"></div>
+            </div>
+            <div class="statistics-field-container">
+                <label class="statistics-field-name">Player 1 - Average Turn Time:</label>
+                <div id="statistics-player1-average-turn-time" class="statistics-data"></div>
+            </div>
+            <div class="statistics-field-container">
+                <label class="statistics-field-name">Player 2 - Average Turn Time:</label>
+                <div id="statistics-player2-average-turn-time" class="statistics-data"></div>
+            </div>
+            <div class="statistics-field-container">
+                <label class="statistics-field-name">Player 1 - Average Turn Time For All Games:</label>
+                <div id="statistics-player1-average-turn-time-all-games" class="statistics-data"></div>
+            </div>
+            <div class="statistics-field-container">
+                <label class="statistics-field-name">Player 2 - Average Turn Time For All Games:</label>
+                <div id="statistics-player2-average-turn-time-all-games" class="statistics-data"></div>
             </div>
         </div>
     </div>
