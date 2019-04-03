@@ -186,16 +186,6 @@ function buildBoardAndInitGame() {
     initializeGame();
 }
 
-function areThereMovesLeft() {
-    for (let row = 0; row < BOARD_DIMENSION; row++) {
-        for (let column = 0; column < BOARD_DIMENSION; column++) {
-            if (checkForPossibleMoves(row, column).possibleScore !== 0)
-                return true;
-        }
-    }
-    return false;
-}
-
 function checkEndgame() {
 
     if (gameData.player1Score === 0 || gameData.player2Score === 0 || (gameData.player1Score + gameData.player2Score === BOARD_DIMENSION * BOARD_DIMENSION)) {
