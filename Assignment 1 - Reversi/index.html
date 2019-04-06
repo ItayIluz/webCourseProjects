@@ -19,7 +19,7 @@
                onclick="toggleShowScore(event)"/>
     </div>
     <div>
-        <button id="quitOrRestartButton" class="button quit-button" onclick="QuitOrRestart()">Quit Game</button>
+        <button id="quitOrRestartButton" class="button quit-button" onclick="quitOrRestart()">Quit Game</button>
     </div>
 </header>
 <div class="game-view">
@@ -27,14 +27,12 @@
         <div></div>
         <div class="height-cancel">
             <div class="board-container">
-                <!-- Add fancy "Player X's turn message above board which changes to PLAYER X WINS! -->
-                <!-- Add fancy "Give up" button -->
                 <div id="reversi-board" class="board">
                 </div>
                 <div id="popup-message" class="popup-message">
                     <h1>Game Over!</h1>
                     <div id="popup-text" class="popup-text">this is the message!</div>
-                    <button class="button" onclick="hidePopup()">Ok!</button>
+                    <button class="button" onclick="hidePopup()">OK!</button>
                 </div>
             </div>
         </div>

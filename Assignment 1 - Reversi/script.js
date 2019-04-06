@@ -180,6 +180,10 @@ function buildBoardAndInitGame() {
         player1TwoPiecesCountSpan: document.getElementById("statistics-player1-two-pieces-count"),
         player2TwoPiecesCountSpan: document.getElementById("statistics-player2-two-pieces-count"),
         currentPlayersTurnSpan: document.getElementById("current-players-turn"),
+        quitRestartButton: document.getElementById("quitOrRestartButton"),
+        popupDiv: document.getElementById("popup-message"),
+        popupTextDiv: document.querySelector("#popup-message .popup-text"),
+        reversiGameDiv: document.getElementById("reversi-game"),
     };
 
     initializeGame();
@@ -190,14 +194,14 @@ function checkEndgame() {
     if (gameData.player1Score === 0 || gameData.player2Score === 0 || (gameData.player1Score + gameData.player2Score === BOARD_DIMENSION * BOARD_DIMENSION)) {
         if (gameData.player1Score > gameData.player2Score) { // Player 1 wins
             gameData.player1Wins++;
-            document.querySelector("#popup-message .popup-text").innerText = "Game Over - Player 1 is the winner!"; // Update message
+            gameElements.popupTextDiv.innerText = "Player 1 is the Winner!"; // Update message
         } else if (gameData.player2Score > gameData.player1Score) { // Player 2 wins
             gameData.player2Wins++;
-            document.querySelector("#popup-message .popup-text").innerText = "Game Over - Player 2 is the winner!"; // Update message
+            gameElements.popupTextDiv.innerText = "Player 2 is the Winner!"; // Update message
         } else { // It's a tie
-            document.querySelector("#popup-message .popup-text").innerText = "Game Over - It's a tie!"; // Update message
+            gameElements.popupTextDiv.innerText = "It's a Tie!"; // Update message
         }
-        document.getElementById("quitOrRestartButton").innerText = "Restart Game";
+        gameElements.quitRestartButton.innerText = "Restart Game";
         showPopup();
         clearInterval(timeCounter);
         gameData.gameRunning = false;
@@ -309,22 +313,22 @@ function checkForPossibleMoves(clickedRow, clickedColumn) {
     return result;
 }
 
-function QuitOrRestart() {
+function quitOrRestart() {
     if (gameData.gameRunning) {
         if (gameData.player1sTurn) {
             gameData.player2Wins++;
-            document.querySelector("#popup-message .popup-text").innerText = "Player 1 quit - Player 2 is the winner!"; // Update message
+            gameElements.popupTextDiv.innerText = "Player 1 Quit - Player 2 is the Winner!"; // Update message
         } else {
             gameData.player1Wins++;
-            document.querySelector("#popup-message .popup-text").innerText = "Player 2 quit - Player 1 is the winner!"; // Update message
+            gameElements.popupTextDiv.innerText = "Player 2 Quit - Player 1 is the Winner!"; // Update message
         }
         showPopup();
         clearInterval(timeCounter);
-        document.getElementById("quitOrRestartButton").innerText = "Restart Game";
+        gameElements.quitRestartButton.innerText = "Restart Game";
         gameData.gameRunning = false;
     } else {
         hidePopup();
-        document.getElementById("quitOrRestartButton").innerText = "Quit Game";
+        gameElements.quitRestartButton.innerText = "Quit Game";
         initializeGame();
     }
 
@@ -332,17 +336,17 @@ function QuitOrRestart() {
 
 function toggleShowScore(event) {
     if (event.target.checked) {
-        document.getElementById("reversi-game").classList.add("assist-score");
+        gameElements.reversiGameDiv.classList.add("assist-score");
     } else {
-        document.getElementById("reversi-game").classList.remove("assist-score");
+        gameElements.reversiGameDiv.classList.remove("assist-score");
     }
 }
 
 function showPopup() {
-    document.getElementById("popup-message").classList.add("show-popup");
+    gameElements.popupDiv.classList.add("show-popup");
 }
 
 function hidePopup() {
-    document.getElementById("popup-message").classList.remove("show-popup");
+    gameElements.popupDiv.classList.remove("show-popup");
 
 }
