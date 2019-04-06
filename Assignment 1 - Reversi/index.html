@@ -9,79 +9,99 @@
 <body>
 <header class="view-header">
     <h1>Reversi Game</h1>
-    <h3>An Awesome Creation by Itay & Lior</h3>
+    <div>
+        <label class="current-players-turn-container">Current Player's Turn: </label><span
+            id="current-players-turn"></span>
+    </div>
+    <div>
+        <label class="show-score-label">Show score: </label>
+        <input type="checkbox" id="show-score-checkbox" class="show-score-checkbox"
+               onclick="toggleShowScore(event)"/>
+    </div>
+    <div>
+        <button id="quitOrRestartButton" class="button quit-button" onclick="QuitOrRestart()">Quit Game</button>
+    </div>
 </header>
 <div class="game-view">
-    <div id="reversi-game" class="game-container assist-score">
-        <div id="player-controls" class="player-controls-container">
-            <div>
-                <label class="current-players-turn-container">Current Player's Turn: </label><span
-                    id="current-players-turn"></span>
-            </div>
-            <div>
-                <label class="show-score-label">Show score: </label>
-                <input type="checkbox" id="show-score-checkbox" class="show-score-checkbox"
-                       onclick="toggleShowScore(event)" checked/>
-            </div>
-            <div>
-                <button id="quit-button" class="quit-button" onclick="playerQuitGame()">Quit Game</button>
-            </div>
-            <div>
-                <button id="restart-game-button" class="restart-game-button" onclick="initializeGame()">Restart Game
-                </button>
-            </div>
-        </div>
+    <div id="reversi-game" class="game-container">
+        <div></div>
         <div class="height-cancel">
             <div class="board-container">
                 <!-- Add fancy "Player X's turn message above board which changes to PLAYER X WINS! -->
                 <!-- Add fancy "Give up" button -->
                 <div id="reversi-board" class="board">
                 </div>
+                <div id="popup-message" class="popup-message">
+                    <h1>Game Over!</h1>
+                    <div id="popup-text" class="popup-text">this is the message!</div>
+                    <button class="button" onclick="hidePopup()">Ok!</button>
+                </div>
             </div>
         </div>
         <div id="reversi-statistics" class="sidebar">
-            <h2>Game Statistics</h2>
-            <div class="statistics-field-container">
-                <label class="statistics-field-name">Game Time:</label>
-                <div id="statistics-game-time" class="statistics-data">00:00</div>
+
+            <div>
+
+                <h2>Game Statistics</h2>
+                <div class="statistics-field-container">
+                    <label class="statistics-field-name">Game Time:</label>
+                    <div id="statistics-game-time" class="statistics-data">00:00</div>
+                </div>
+                <div class="statistics-field-container">
+                    <label class="statistics-field-name">Total Turns:</label>
+                    <div id="statistics-total-turns" class="statistics-data"></div>
+                </div>
             </div>
-            <div class="statistics-field-container">
-                <label class="statistics-field-name">Total Turns:</label>
-                <div id="statistics-total-turns" class="statistics-data"></div>
+            <div>
+
+                <h4>
+                    Player 1:
+                </h4>
+                <div class="player-statistics-container">
+
+                    <div class="statistics-field-container">
+                        <label class="statistics-field-name">Score:</label>
+                        <div id="statistics-player1-score" class="statistics-data"></div>
+                    </div>
+                    <div class="statistics-field-container">
+                        <label class="statistics-field-name">Two Pieces Count:</label>
+                        <div id="statistics-player1-two-pieces-count"
+                             class="statistics-data"></div>
+                    </div>
+                    <div class="statistics-field-container">
+                        <label class="statistics-field-name">Average Turn Time:</label>
+                        <div id="statistics-player1-average-turn-time" class="statistics-data"></div>
+                    </div>
+                    <div class="statistics-field-container">
+                        <label class="statistics-field-name">Average Turn Time (All Games):</label>
+                        <div id="statistics-player1-average-turn-time-all-games" class="statistics-data"></div>
+                    </div>
+                </div>
             </div>
-            <div class="statistics-field-container">
-                <label class="statistics-field-name">Player 1 Score:</label>
-                <div id="statistics-player1-score" class="statistics-data"></div>
-            </div>
-            <div class="statistics-field-container">
-                <label class="statistics-field-name">Player 2 Score:</label>
-                <div id="statistics-player2-score" class="statistics-data"></div>
-            </div>
-            <div class="statistics-field-container">
-                <label class="statistics-field-name">Player 1 Two Pieces Count:</label>
-                <div id="statistics-player1-two-pieces-count"
-                     class="statistics-data"></div>
-            </div>
-            <div class="statistics-field-container">
-                <label class="statistics-field-name">Player 2 Two Pieces Count:</label>
-                <div id="statistics-player2-two-pieces-count"
-                     class="statistics-data"></div>
-            </div>
-            <div class="statistics-field-container">
-                <label class="statistics-field-name">Player 1 - Average Turn Time:</label>
-                <div id="statistics-player1-average-turn-time" class="statistics-data"></div>
-            </div>
-            <div class="statistics-field-container">
-                <label class="statistics-field-name">Player 2 - Average Turn Time:</label>
-                <div id="statistics-player2-average-turn-time" class="statistics-data"></div>
-            </div>
-            <div class="statistics-field-container">
-                <label class="statistics-field-name">Player 1 - Average Turn Time For All Games:</label>
-                <div id="statistics-player1-average-turn-time-all-games" class="statistics-data"></div>
-            </div>
-            <div class="statistics-field-container">
-                <label class="statistics-field-name">Player 2 - Average Turn Time For All Games:</label>
-                <div id="statistics-player2-average-turn-time-all-games" class="statistics-data"></div>
+            <div>
+
+                <h4>
+                    Player 2:
+                </h4>
+                <div class="player-statistics-container">
+                    <div class="statistics-field-container">
+                        <label class="statistics-field-name">Score:</label>
+                        <div id="statistics-player2-score" class="statistics-data"></div>
+                    </div>
+                    <div class="statistics-field-container">
+                        <label class="statistics-field-name">Two Pieces Count:</label>
+                        <div id="statistics-player2-two-pieces-count"
+                             class="statistics-data"></div>
+                    </div>
+                    <div class="statistics-field-container">
+                        <label class="statistics-field-name">Average Turn Time:</label>
+                        <div id="statistics-player2-average-turn-time" class="statistics-data"></div>
+                    </div>
+                    <div class="statistics-field-container">
+                        <label class="statistics-field-name">Average Turn Time (All Games):</label>
+                        <div id="statistics-player2-average-turn-time-all-games" class="statistics-data"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

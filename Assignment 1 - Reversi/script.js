@@ -100,9 +100,9 @@ function initializeGame() {
                 boardCell.element.dataset.score = "";
 
                 boardCell.element.onclick = function () {
-                    if(gameData.gameRunning){
+                    if (gameData.gameRunning) {
                         let cellData = gameData.board[row][column];
-                        
+
                         if (cellData.possiblePieces.length > 0) {
                             this.classList.remove("can-place");
                             changePlayerPieces(cellData.possiblePieces);
@@ -114,7 +114,7 @@ function initializeGame() {
                 };
 
                 boardCell.element.onmouseover = function () {
-                    if(gameData.gameRunning){
+                    if (gameData.gameRunning) {
                         let result = checkForPossibleMoves(row, column);
                         gameData.board[row][column].possiblePieces = result.finalPossiblePieces;
                         if (result.possibleScore !== 0) {
@@ -125,7 +125,7 @@ function initializeGame() {
                 };
 
                 boardCell.element.onmouseout = function () {
-                    if(gameData.gameRunning){
+                    if (gameData.gameRunning) {
                         gameData.board[row][column].possiblePieces = [];
                         this.classList.remove("can-place");
                         this.dataset.score = "";
@@ -135,10 +135,10 @@ function initializeGame() {
         }
     }
 
-    gameElements.restartGameButton.hidden = true;
     gameElements.currentPlayersTurnSpan.innerHTML = "Player 1 (White)";
     updateStatistics();
     timeCounter = setInterval(updateGameTime, 1000);
+    return;
 }
 
 function buildBoardAndInitGame() {
@@ -180,7 +180,6 @@ function buildBoardAndInitGame() {
         player1TwoPiecesCountSpan: document.getElementById("statistics-player1-two-pieces-count"),
         player2TwoPiecesCountSpan: document.getElementById("statistics-player2-two-pieces-count"),
         currentPlayersTurnSpan: document.getElementById("current-players-turn"),
-        restartGameButton: document.getElementById("restart-game-button"),
     };
 
     initializeGame();
@@ -191,15 +190,16 @@ function checkEndgame() {
     if (gameData.player1Score === 0 || gameData.player2Score === 0 || (gameData.player1Score + gameData.player2Score === BOARD_DIMENSION * BOARD_DIMENSION)) {
         if (gameData.player1Score > gameData.player2Score) { // Player 1 wins
             gameData.player1Wins++;
-            alert("Game Over - Player 1 is the winner!"); // Update message
+            document.querySelector("#popup-message .popup-text").innerText = "Game Over - Player 1 is the winner!"; // Update message
         } else if (gameData.player2Score > gameData.player1Score) { // Player 2 wins
             gameData.player2Wins++;
-            alert("Game Over - Player 2 is the winner!"); // Update message
+            document.querySelector("#popup-message .popup-text").innerText = "Game Over - Player 2 is the winner!"; // Update message
         } else { // It's a tie
-            alert("Game Over - It's a tie!"); // Update message
+            document.querySelector("#popup-message .popup-text").innerText = "Game Over - It's a tie!"; // Update message
         }
+        document.getElementById("quitOrRestartButton").innerText = "Restart Game";
+        showPopup();
         clearInterval(timeCounter);
-        gameElements.restartGameButton.hidden = false;
         gameData.gameRunning = false;
     }
 }
@@ -229,7 +229,7 @@ function updateGameData(scoreChange) {
 
     gameData.player1sTurn = !gameData.player1sTurn; // Change turn
     gameData.currentGameTotalTurns++; // Increment total turns
-    
+
     gameElements.currentPlayersTurnSpan.innerHTML = (gameData.player1sTurn ? "Player 1 (White)" : "Player 2 (Black)");
 }
 
@@ -276,7 +276,7 @@ function checkForPossibleMoves(clickedRow, clickedColumn) {
             let possiblePieces = [];
 
             // Look for valid pieces and pieces with opposite color
-            while(isInBounds(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 !== null && gameData.board[rowCheck][columnCheck].isPlayer1 !== gameData.player1sTurn) {
+            while (isInBounds(rowCheck, columnCheck) && gameData.board[rowCheck][columnCheck].isPlayer1 !== null && gameData.board[rowCheck][columnCheck].isPlayer1 !== gameData.player1sTurn) {
 
                 possiblePieces.push([rowCheck, columnCheck]);
 
@@ -292,11 +292,11 @@ function checkForPossibleMoves(clickedRow, clickedColumn) {
                 for (let piece in possiblePieces)
                     result.finalPossiblePieces.push(possiblePieces[piece]);
             }
-            
+
         }
     }
 
-    if(isValid)
+    if (isValid)
         result.finalPossiblePieces.push([clickedRow, clickedColumn]); // Add the piece in the clicked location
 
     if (result.finalPossiblePieces.length > 0) {
@@ -305,28 +305,44 @@ function checkForPossibleMoves(clickedRow, clickedColumn) {
                 result.possibleScore++;
         }
     }
-    
+
     return result;
 }
 
-function playerQuitGame() {
-
-    if (gameData.player1sTurn) {
-        gameData.player2Wins++;
-        alert("Player 1 quit - Player 2 is the winner!"); // Update message
+function QuitOrRestart() {
+    if (gameData.gameRunning) {
+        if (gameData.player1sTurn) {
+            gameData.player2Wins++;
+            document.querySelector("#popup-message .popup-text").innerText = "Player 1 quit - Player 2 is the winner!"; // Update message
+        } else {
+            gameData.player1Wins++;
+            document.querySelector("#popup-message .popup-text").innerText = "Player 2 quit - Player 1 is the winner!"; // Update message
+        }
+        showPopup();
+        clearInterval(timeCounter);
+        document.getElementById("quitOrRestartButton").innerText = "Restart Game";
+        gameData.gameRunning = false;
     } else {
-        gameData.player1Wins++;
-        alert("Player 2 quit - Player 1 is the winner!"); // Update message
+        hidePopup();
+        document.getElementById("quitOrRestartButton").innerText = "Quit Game";
+        initializeGame();
     }
-    clearInterval(timeCounter);
-    gameElements.restartGameButton.hidden = false;
-    gameData.gameRunning = false;
+
 }
 
 function toggleShowScore(event) {
     if (event.target.checked) {
-        document.getElementById('reversi-game').classList.add('assist-score');
+        document.getElementById("reversi-game").classList.add("assist-score");
     } else {
-        document.getElementById('reversi-game').classList.remove('assist-score');
+        document.getElementById("reversi-game").classList.remove("assist-score");
     }
+}
+
+function showPopup() {
+    document.getElementById("popup-message").classList.add("show-popup");
+}
+
+function hidePopup() {
+    document.getElementById("popup-message").classList.remove("show-popup");
+
 }
