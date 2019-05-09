@@ -1,0 +1,36 @@
+.domino-tile {
+    border: 1px solid black;
+    background: white;
+    color: black;
+}
+
+.tile-dots-container {
+    display: flex;
+    justify-content: center;
+}
+
+.domino-tile.horizontal {
+    width: 100px;
+    height: 70px;
+}
+
+.domino-tile.vertical {
+    width: 70px;
+    height: 100px;
+}
+
+.tile-break {
+    width: 100%;
+    background: black;
+    height: 10px;
+    margin: 15px 0px;
+}
+
+.tile-dot {
+    margin: 5px;
+    background: black;
+    border: 1px solid black;
+    border-radius: 25px;
+    width: 10px;
+    height: 10px;
+}
