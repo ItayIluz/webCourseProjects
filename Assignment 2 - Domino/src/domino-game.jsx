@@ -12,7 +12,11 @@ class DominoGame extends Component {
   render() {
     return (
       <div>
-        <DominoTile firstPoints="1" secondPoints="2"/>
+        <DominoTile firstDots="1" secondDots="6"/>
+        <div>abc</div>
+        <DominoTile firstDots="2" secondDots="5"/>
+        <div>abc</div>
+        <DominoTile firstDots="3" secondDots="4"/>
       </div>
     );
   }

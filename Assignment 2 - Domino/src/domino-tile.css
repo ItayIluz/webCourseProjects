@@ -1,36 +1,48 @@
 .domino-tile {
     border: 1px solid black;
+    border-radius: 5px;
     background: white;
     color: black;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 64px;
+    box-shadow: 5px 3px 10px;
 }
 
 .tile-dots-container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    width: 100%;
 }
 
-.domino-tile.horizontal {
-    width: 100px;
-    height: 70px;
-}
-
-.domino-tile.vertical {
-    width: 70px;
-    height: 100px;
+.tile-dots-container-line {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .tile-break {
     width: 100%;
     background: black;
-    height: 10px;
-    margin: 15px 0px;
+    height: 5px;
+    margin: 5px 0px;
 }
 
 .tile-dot {
     margin: 5px;
-    background: black;
-    border: 1px solid black;
-    border-radius: 25px;
+    border-radius: 10px;
     width: 10px;
     height: 10px;
+}
+
+.tile-dot.black {
+    background: black;
+    border: 1px solid black;
+}
+
+.tile-dot.white {
+    background: white;
+    border: 1px solid white;
 }
