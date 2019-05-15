@@ -1,5 +1,6 @@
 import React, { Component } from "react";
-import DominoTile from "./domino-tile.jsx";
+import DominoBoard from "./domino-board.jsx";
+import DominoHeader from "./domino-header.jsx";
 import "./domino-game.css";
 
 class DominoGame extends Component {
@@ -12,11 +13,8 @@ class DominoGame extends Component {
   render() {
     return (
       <div>
-        <DominoTile firstDots="1" secondDots="6"/>
-        <div>abc</div>
-        <DominoTile firstDots="2" secondDots="5"/>
-        <div>abc</div>
-        <DominoTile firstDots="3" secondDots="4"/>
+        <DominoHeader></DominoHeader>
+        <DominoBoard></DominoBoard>
       </div>
     );
   }

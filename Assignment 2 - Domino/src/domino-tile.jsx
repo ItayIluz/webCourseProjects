@@ -4,6 +4,7 @@ import "./domino-tile.css";
 class DominoTile extends Component {
   constructor(props) {
     super(props);
+    
   }
 
   createDotsContainer(numberOfDots){
@@ -61,14 +62,7 @@ class DominoTile extends Component {
       container.push(<div key={"line"+line} className={"tile-dots-container-line " + "line"+line}>{lineDots}</div>);
     }
 
-      
-
-    /*  for (let i = 1; i < numberOfDots; i++) {
-
-
-        container.push(<div key={"dot-"+i+"-of-"+numberOfDots} className="tile-dot"></div>)
-      }*/
-      return container;
+    return container;
   }
 
   render() {
