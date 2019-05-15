@@ -10,7 +10,8 @@ class DominoGame extends Component {
       dominoDeck: [],
       playerHand: [],
       headTile: null,
-      selectedTile: null
+      selectedTile: null,
+      boardTiles: []
     };
 
     // Generate deck tiles
