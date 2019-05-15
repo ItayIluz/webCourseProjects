@@ -4,7 +4,23 @@ import "./domino-tile.css";
 class DominoTile extends Component {
   constructor(props) {
     super(props);
-    
+    this.state = {
+      isSelected: false,
+      inHand: this.props.inHand,
+      adjacentTiles: {
+        top: null,
+        right: null,
+        bottom: null,
+        left: null,
+      }
+    }
+
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  handleClick(){
+    this.setState({isSelected: !this.state.isSelected});
+    this.props.onClick(this);
   }
 
   createDotsContainer(numberOfDots){
@@ -67,7 +83,7 @@ class DominoTile extends Component {
 
   render() {
     return (
-      <div className="domino-tile">
+      <div className={"domino-tile" + (this.props.inHand ? " in-hand" : " on-board") + (this.state.isSelected ? " selected" : "")} onClick={this.handleClick}>
         <div className="tile-dots-container">
           {this.createDotsContainer(this.props.firstDots)}
         </div>

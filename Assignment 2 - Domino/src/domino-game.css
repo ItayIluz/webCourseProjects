@@ -8,6 +8,34 @@ body, html {
     margin: 0;
 }
 
+.view-header {
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 50px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, .6);
+}
+
+.player-hand{
+    display: flex;
+    justify-content: center;
+}
+
+.player-hand-title{
+    font-size: 20px;
+    margin-right: 20px;
+}
+
+.game-board{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    background: #bebebe;
+}
+
 .button {
     padding: 5px 20px;
     border-radius: 5px;
@@ -15,6 +43,14 @@ body, html {
     background: #FDA50F;
     color: black;
     text-align: center;
+}
+
+.button:hover{
+    background: #fdd50f;
+}
+
+.button:active{
+    background: #FDA50F;
 }
 
 .popup-message {

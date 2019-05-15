@@ -7,26 +7,32 @@ class DominoBoard extends Component {
   constructor() {
     super();
     this.state = {
-     
+     renderedTiles: []
     };
+
+    this.addTile = this.addTile.bind(this);
   }
+
+  addTile(tile){
+    let currentRenderedTiles = this.state.renderedTiles;
+    currentRenderedTiles.push(tile);
+
+    this.setState({renderedTiles: currentRenderedTiles});
+  }
+
   render() {
     return (
       <div className="game-view">
-        <div id="domino-game" className="game-container">
+        <div className="game-container">
           <div></div>
           <div className="height-cancel">
               <div className="board-container">
-                  <div id="domino-board" className="board">
-                    <DominoTile firstDots="1" secondDots="6"/>
-                    <div>abc</div>
-                    <DominoTile firstDots="2" secondDots="5"/>
-                    <div>abc</div>
-                    <DominoTile firstDots="3" secondDots="4"/>
+                  <div className="board">
+                    {this.state.renderedTiles}
                   </div>
-                  <div id="popup-message" className="popup-message">
+                  <div className="popup-message">
                       <h1>Game Over!</h1>
-                      <div id="popup-text" className="popup-text">this is the message!</div>
+                      <div className="popup-text">this is the message!</div>
                       <button className="button" onClick={this.hidePopup}>OK!</button>
                   </div>
               </div>
