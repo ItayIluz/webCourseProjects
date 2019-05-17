@@ -21,6 +21,7 @@ class DominoGame extends Component {
       }
     }
 
+    this.state.headTile = React.createRef();
     this.gameBoard = React.createRef();
 
     this.drawFromDeck = this.drawFromDeck.bind(this);
@@ -47,12 +48,14 @@ class DominoGame extends Component {
           inHand={false} 
           firstDots={clickedTile.props.firstDots} 
           secondDots={clickedTile.props.secondDots}
+          ref={this.state.headTile}
         />
       );
       
       this.removeTileFromHand(clickedTile);
 
     } else {
+
       this.setState({selectedTile: clickedTile});
     }
   }

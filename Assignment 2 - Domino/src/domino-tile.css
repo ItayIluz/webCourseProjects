@@ -6,8 +6,8 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    max-width: 64px;
-    max-height: 148px;
+    width: 64px;
+    height: 148px;
     box-shadow: 5px 3px 10px;
     transform: scale(0.5);
 }
