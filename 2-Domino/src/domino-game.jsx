@@ -113,5 +113,4 @@ class DominoGame extends Component {
     );
   }
 }
-
 export default DominoGame;

@@ -7,7 +7,6 @@ class DominoTile extends Component {
     this.state = {
       isSelected: false,
       inHand: this.props.inHand,
-      position: {},
       adjacentTiles: {
         top: null,
         right: null,
