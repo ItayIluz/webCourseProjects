@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import DominoBoard from "./domino-board.jsx";
-import DominoTile from "./domino-tile.jsx";
+import DominoBoard from "../domino-board/domino-board.jsx";
+import DominoTile from "../domino-tile/domino-tile.jsx";
 import "./domino-game.css";
 
 class DominoGame extends Component {
@@ -17,7 +17,7 @@ class DominoGame extends Component {
     // Generate deck tiles
     for(let i = 0; i < 7; i++){
       for(let j = 0; j <= i; j++){
-        this.state.dominoDeck.push({firstDots: i, secondDots: j});
+        this.state.dominoDeck.push({numA: i, numB: j});
       }
     }
 
@@ -37,32 +37,37 @@ class DominoGame extends Component {
   }
 
   selectTile(clickedTile){
-    
+
     let currentBoardTiles = this.state.boardTiles;
 
-    if(currentBoardTiles.length == 0){
+    if(currentBoardTiles.length === 0){
 
       currentBoardTiles.push(
         <DominoTile 
-          key={"tile-first"+clickedTile.props.firstDots+"second"+clickedTile.props.secondDots} 
+          key={"tile-first"+clickedTile.props.numA+"second"+clickedTile.props.numB}
           inHand={false} 
-          firstDots={clickedTile.props.firstDots} 
-          secondDots={clickedTile.props.secondDots}
+          numA={clickedTile.props.numA}
+          numB={clickedTile.props.numB}
           ref={this.state.headTile}
+          position={{x : 0, y: 0, spin: 0}}
         />
       );
+       this.state.headTile = currentBoardTiles[0];
       
       this.removeTileFromHand(clickedTile);
 
     } else {
 
       this.setState({selectedTile: clickedTile});
+
+
     }
   }
 
+
   removeTileFromHand(tile){
     let currentPlayerHand = this.state.playerHand;
-    let index = currentPlayerHand.findIndex(a => a.props.firstDots == tile.props.firstDots && a.props.secondDots == tile.props.secondDots);
+    let index = currentPlayerHand.findIndex(a => a.props.numA === tile.props.numA && a.props.numB === tile.props.numB);
     
     if (index > -1) {
       currentPlayerHand.splice(index, 1);
@@ -82,11 +87,16 @@ class DominoGame extends Component {
     let tile = this.state.dominoDeck.splice(randomNumber, 1)[0];
 
     currentPlayerHand.push(
-      <DominoTile 
-        key={"tile-first"+tile.firstDots+"second"+tile.secondDots} 
+      <DominoTile
+        key={"tile-first"+tile.numA+"second"+tile.numB}
         inHand={true} 
-        firstDots={tile.firstDots} 
-        secondDots={tile.secondDots}
+        numA={tile.numA}
+        numB={tile.numB}
+        position={{
+          x: 0,
+          y: 0,
+          orientation: 'v'
+        }}
         onClick={clickedTile => {this.selectTile(clickedTile)}}
       />
     );

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import DominoStatistics from "./domino-statistics.jsx";
-import DominoTile from "./domino-tile.jsx";
+import DominoStatistics from "../domino-statistics/domino-statistics.jsx";
+import DominoTile from "../domino-tile/domino-tile.jsx";
 import "./domino-board.css";
 
 class DominoBoard extends Component {

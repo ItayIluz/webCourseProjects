@@ -1,0 +1,42 @@
+
+.tile-dots-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+}
+
+.tile-dots-container-line {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.tile-dot {
+    margin: 2px;
+    border-radius: 10px;
+    width: 5px;
+    height: 5px;
+}
+
+.tile-dot.black {
+    background: black;
+    border: 1px solid black;
+}
+
+.tile-dot.white {
+    background: white;
+    border: 1px solid white;
+}
+
+.domino-tile.on-board:hover{
+    
+}
+
+.domino-tile.in-hand{
+    cursor: pointer;
+}
+
+.domino-tile.in-hand:hover, .domino-tile.in-hand.selected {
+    box-shadow: 0px 5px 20px rgba(255, 212, 0, 1);
+}

@@ -1,0 +1,42 @@
+.tile-position {
+    width: 100%;
+    height: 100%;
+    border: 1px solid deeppink;
+    transform-origin: center;
+    position: absolute;
+}
+
+.tile-position:not(.taken):hover{
+    box-shadow: 0 0 10px rgba(200,0,150,.3);
+    cursor: pointer;
+}
+
+.tile-break {
+    width: 100%;
+    background: black;
+    height: 2px;
+    margin: 1px 0px;
+}
+
+.tile-dot.black {
+    background: black;
+    border: 1px solid black;
+}
+
+.tile-dot.white {
+    background: white;
+    border: 1px solid white;
+}
+
+.domino-tile.on-board:hover {
+
+}
+
+.domino-tile.in-hand {
+    cursor: pointer;
+    margin: 0 7px;
+}
+
+.tile-position {
+
+}
