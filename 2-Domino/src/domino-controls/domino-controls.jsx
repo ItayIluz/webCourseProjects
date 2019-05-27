@@ -22,10 +22,10 @@ class DominoControls extends Component {
     
     for (let i = 0; i < tilesData.length; i++) {
       tiles.push(<DominoTile 
-                    key={"tile-first"+tilesData[i].firstDots+"second"+tilesData[i].secondDots} 
+                    key={"tile-first"+tilesData[i].numA+"second"+tilesData[i].numB}
                     inHand={true} 
-                    firstDots={tilesData[i].firstDots} 
-                    secondDots={tilesData[i].secondDots}
+                    numA={tilesData[i].numA}
+                    numB={tilesData[i].numB}
                     onClick={() => this.placeOnBoard(this)}
                   />);
     }
@@ -35,7 +35,7 @@ class DominoControls extends Component {
 
   placeOnBoard(tile){
     let currentRenderedTiles = this.state.renderedTiles;
-    let index = currentRenderedTiles.findIndex(a => tile.firstDots == a.firstDots && tile.secondDots == a.secondDots);
+    let index = currentRenderedTiles.findIndex(a => tile.numA == a.numA && tile.numB == a.numB);
 
     if (index > -1) {
       currentRenderedTiles.splice(index, 1);
