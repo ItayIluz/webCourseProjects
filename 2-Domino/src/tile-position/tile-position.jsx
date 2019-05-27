@@ -17,15 +17,12 @@ class TilePosition extends Component {
 
     render() {
         return (
-            <div className={'tile-position ' + this.state.isTaken ? 'taken ' : ''} style={this.transform()}>
+            <div className={'tile-position'} style={this.transform()}>
 
             </div>
         );
     }
 
-    onClick(){
-
-    }
 }
 
 export default TilePosition;
