@@ -4,30 +4,20 @@ import "./tile-position.css";
 class TilePosition extends Component {
     constructor(props) {
         super(props);
-        this.myPosition = {
-            x: this.props.tilePosition.position.x,// - this.props.parentTilePosition.x,
-            y: this.props.tilePosition.position.y,// - this.props.parentTilePosition.y,
-            spin: this.props.tilePosition.position.spin// - this.props.parentTilePosition.spin,
 
-        };
-
-        this.transform = this.transform.bind(this);
-        this.place = this.place.bind(this);
-
+        this.state = {
+            isTaken: this.props.tilePosition.isTaken
+        }
     }
 
     transform() {
-        return {transform: `translate(${50 * this.myPosition.x}%,${25 * this.myPosition.y}%) rotate(${this.myPosition.spin * 90}deg)`};
-    }
-
-    place(){
-        this.props.placeSelectedTile(this.props.tilePosition);
+        return {transform: `translate(${50 * this.props.tilePosition.position.x}%,${25 * this.props.tilePosition.position.y}%) rotate(${this.props.tilePosition.position.spin * 90}deg)`};
     }
 
 
     render() {
         return (
-            <div className={'tile-position'} style={this.transform()} onClick={this.place}>
+            <div className={'tile-position'} style={this.transform()}>
 
             </div>
         );

@@ -1,14 +1,3 @@
-.tile-container.on-board {
-    position: absolute;
-    width: 36px;
-    height: 72px;
-}
-
-.tile-container.in-hand {
-    cursor: pointer;
-    margin: 0 7px;
-}
-
 .domino-tile {
     border: 1px solid black;
     border-radius: 5px;
@@ -17,24 +6,16 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    width: 34px;
-    height: 70px;
-}
-
-.domino-tile.on-board {
-    position: absolute;
-}
-
-.domino-tile.in-hand {
-    cursor: pointer;
-    margin: 0 7px;
+    width: 36px;
+    height: 72px;
+    box-shadow: 5px 3px 10px;
 }
 
 .tile-break {
     width: 100%;
     background: black;
     height: 2px;
-    margin: 1px 0;
+    margin: 1px 0px;
 }
 
 .tile-dot.black {
@@ -47,7 +28,14 @@
     border: 1px solid white;
 }
 
+.domino-tile.on-board:hover {
 
+}
+
+.domino-tile.in-hand {
+    cursor: pointer;
+    margin: 0 7px;
+}
 
 .tile-position {
     width: 32px;
@@ -55,6 +43,6 @@
     border: 1px solid deeppink;
 }
 
-.tile-container.in-hand.selected .domino-tile {
-    box-shadow: 0 5px 20px rgba(255, 212, 0, 1);
+.domino-tile.in-hand:hover, .domino-tile.in-hand.selected {
+    box-shadow: 0px 5px 20px rgba(255, 212, 0, 1);
 }
