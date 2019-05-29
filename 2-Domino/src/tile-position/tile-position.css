@@ -4,6 +4,9 @@
     border: 1px solid deeppink;
     transform-origin: center;
     position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
 }
 
 .tile-position:not(.taken):hover{
@@ -15,7 +18,7 @@
     width: 100%;
     background: black;
     height: 2px;
-    margin: 1px 0px;
+    margin: 1px 0;
 }
 
 .tile-dot.black {

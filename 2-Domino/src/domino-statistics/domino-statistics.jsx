@@ -4,72 +4,53 @@ import "./domino-statistics.css";
 class DominoStatistics extends Component {
   constructor() {
     super();
-    this.state = {
-      
-    };
+    
+    this.formatTime = this.formatTime.bind(this);
   }
+
+  formatTime(time) {
+    let minutes = parseInt(time / 60);
+    let seconds = parseInt(time - (minutes * 60));
+
+    if (minutes < 10)
+        minutes = "0" + minutes;
+
+    if (seconds < 10)
+        seconds = "0" + seconds;
+
+    return minutes + ":" + seconds;
+  }
+
   render() {
     return (
       <div className="statistics-sidebar">
-        <div>
-            <h2>Game Statistics</h2>
-            <div className="statistics-field-container">
-                <label className="statistics-field-name">Game Time:</label>
-                <div id="statistics-game-time" className="statistics-data">00:00</div>
-            </div>
-            <div className="statistics-field-container">
-                <label className="statistics-field-name">Total Turns:</label>
-                <div id="statistics-total-turns" className="statistics-data"></div>
-            </div>
+        <h2>Game Statistics</h2>
+        <div className="statistics-field-container">
+            <label className="statistics-field-name">Game Time:</label>
+            <div className="statistics-data">{this.formatTime(this.props.gameTime)}</div>
+        </div>
+        <div className="statistics-field-container">
+            <label className="statistics-field-name">Total Turns:</label>
+            <div className="statistics-data">{this.props.totalTurns}</div>
         </div>
         <div>
             <h4>
                 Player 1:
             </h4>
-            <div className="player-statistics-container">
-
-                <div className="statistics-field-container">
-                    <label className="statistics-field-name">Score:</label>
-                    <div id="statistics-player1-score" className="statistics-data"></div>
-                </div>
-                <div className="statistics-field-container">
-                    <label className="statistics-field-name">Two Pieces Count:</label>
-                    <div id="statistics-player1-two-pieces-count"
-                        className="statistics-data"></div>
-                </div>
-                <div className="statistics-field-container">
-                    <label className="statistics-field-name">Average Turn Time:</label>
-                    <div id="statistics-player1-average-turn-time" className="statistics-data"></div>
-                </div>
-                <div className="statistics-field-container">
-                    <label className="statistics-field-name">Average Turn Time (All Games):</label>
-                    <div id="statistics-player1-average-turn-time-all-games" className="statistics-data"></div>
-                </div>
-            </div>
-        </div>
-        <div>
-            <h4>
-                Player 2:
-            </h4>
-            <div className="player-statistics-container">
-                <div className="statistics-field-container">
-                    <label className="statistics-field-name">Score:</label>
-                    <div id="statistics-player2-score" className="statistics-data"></div>
-                </div>
-                <div className="statistics-field-container">
-                    <label className="statistics-field-name">Two Pieces Count:</label>
-                    <div id="statistics-player2-two-pieces-count"
-                        className="statistics-data"></div>
-                </div>
-                <div className="statistics-field-container">
-                    <label className="statistics-field-name">Average Turn Time:</label>
-                    <div id="statistics-player2-average-turn-time" className="statistics-data"></div>
-                </div>
-                <div className="statistics-field-container">
-                    <label className="statistics-field-name">Average Turn Time (All Games):</label>
-                    <div id="statistics-player2-average-turn-time-all-games" className="statistics-data"></div>
-                </div>
-            </div>
+          <div className="player-statistics-container">
+              <div className="statistics-field-container">
+                  <label className="statistics-field-name">Score:</label>
+                  <div className="statistics-data">{this.props.score}</div>
+              </div>
+              <div className="statistics-field-container">
+                  <label className="statistics-field-name">Number Of Draws From Deck:</label>
+                  <div className="statistics-data">{this.props.numOfDraws}</div>
+              </div>
+              <div className="statistics-field-container">
+                  <label className="statistics-field-name">Average Turn Time:</label>
+                  <div className="statistics-data">{this.formatTime(this.props.averageTurnTime)}</div>
+              </div>
+          </div>
         </div>
     </div>
     );
