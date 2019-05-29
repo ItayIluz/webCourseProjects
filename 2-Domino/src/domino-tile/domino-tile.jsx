@@ -11,7 +11,6 @@ class DominoTile extends Component {
             inHand: this.props.inHand,
             factor: this.props.factor,
             possibleAdjacentTiles: this.calculatePossibleAdjacentTiles(this.props.position, this.props.numA, this.props.numB, this.props.fatherPosition),
-            fatherTile: this.props.fatherTile,
             position: {
                 x: this.props.position.x,
                 y: this.props.position.y,
@@ -29,6 +28,7 @@ class DominoTile extends Component {
         this.getAdjacentOfDouble = this.getAdjacentOfDouble.bind(this);
         this.filterPositions = this.filterPositions.bind(this);
         this.createTilePositions = this.createTilePositions.bind(this);
+        this.toggleSelect = this.toggleSelect.bind(this);
     }
 
     calculatePossibleAdjacentTiles(position, numA, numB, takenPosition) {
@@ -164,8 +164,14 @@ class DominoTile extends Component {
     }
 
     handleClick() {
-        this.setState({isSelected: !this.state.isSelected});
-        this.props.onClick(this);
+        if(!this.state.isSelected)
+            this.props.onClick(this);
+
+        this.toggleSelect(!this.state.isSelected);        
+    }
+
+    toggleSelect(select){
+        this.setState({isSelected: select});
     }
 
     transform() {
