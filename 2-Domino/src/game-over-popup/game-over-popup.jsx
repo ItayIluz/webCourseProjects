@@ -9,9 +9,9 @@ class GameOverPopup extends Component {
   render() {
     return (
       <div className={"popup-message " + (this.props.showPopup ? "show-popup" : "")}>
-        <h1>Game Over!</h1>
-        <div className="popup-text">this is the message!</div>
-        <button className="button" onClick={this.props.closeFunction}>OK!</button>
+        <h1>Game Over</h1>
+        <div className="popup-text">this is the message</div>
+        <button className="button" onClick={this.props.closeFunction}>OK</button>
     </div>
     );
   }
