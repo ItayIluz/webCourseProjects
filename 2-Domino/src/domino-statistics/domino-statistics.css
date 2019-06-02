@@ -6,10 +6,10 @@
 .statistics-field-container:not(last-child) {
     margin-bottom: 5px;
 }
-
+/*
 .player-statistics-container {
     padding-left: 20px;
-}
+}*/
 
 .statistics-field-name {
     padding: 10px 0;

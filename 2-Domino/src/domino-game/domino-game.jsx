@@ -21,6 +21,7 @@ class DominoGame extends Component {
             gameHistory: [],
             gameHistoryRound: 0,
             isGameOver: false,
+            disableReplay: true,
         };
 
         this.gameTimeInterval = null;
@@ -48,6 +49,7 @@ class DominoGame extends Component {
         this.startNewGame = this.startNewGame.bind(this);
         this.previousHistory = this.previousHistory.bind(this);
         this.nextHistory = this.nextHistory.bind(this);
+        this.enableReplay = this.enableReplay.bind(this);
     }
 
     componentDidMount() {
@@ -55,6 +57,10 @@ class DominoGame extends Component {
     }
 
     startNewGame() {
+
+        if(this.state.isGameOver)
+            this.closeGameOverPopup();
+
         let newDominoDeck = [];
         // Generate deck tiles
         for (let i = 0; i < 7; i++) {
@@ -79,6 +85,7 @@ class DominoGame extends Component {
             gameHistory: [],
             gameHistoryRound: -1,
             isGameOver: false,
+            disableReplay: true,
         }, () => {
             // Draw 6 tiles to the player's hand
             for (let i = 0; i < 6; i++)
@@ -109,7 +116,7 @@ class DominoGame extends Component {
     checkGameOver() {
         if (this.state.playerHand.length === 0 && this.state.dominoDeck.length === 0) {
             this.setGameOver();
-        } else if (this.hasNoValidMoves()) {
+        } else if (this.state.dominoDeck.length === 0 && this.hasNoValidMoves()) {
             this.setGameOver();
         }
     }
@@ -303,6 +310,10 @@ class DominoGame extends Component {
         }
     }
 
+    enableReplay(){
+        this.setState({disableReplay: false}, this.closeGameOverPopup);
+    }
+
     openGameOverPopup() {
         this.setState({showGameOverPopup: true})
     }
@@ -320,13 +331,19 @@ class DominoGame extends Component {
                         {this.state.playerHand}
                     </div>
                     <div>
-                        <button className="button" onClick={() => this.drawFromDeck(false)}>Draw From Deck</button>
-                        <button className="button" onClick={this.startNewGame}>Start New Game</button>
+                        <button className="button" onClick={() => this.drawFromDeck(false)} disabled={this.state.dominoDeck.length === 0}>
+                            {this.state.dominoDeck.length !== 0 ? "Draw From Deck" : "No more tiles"}
+                        </button>
+                        <button className="button" onClick={this.startNewGame} hidden={!this.state.isGameOver}>Start a New Game</button>
                         <button className="button" onClick={this.previousHistory}
-                                disabled={this.state.gameHistoryRound === 0}>Previous
+                                disabled={this.state.gameHistoryRound === 0}
+                                hidden={this.state.disableReplay}>
+                                    Previous
                         </button>
                         <button className="button" onClick={this.nextHistory}
-                                disabled={this.state.gameHistoryRound === this.state.gameHistory.length - 1}>Next
+                                disabled={this.state.gameHistoryRound === this.state.gameHistory.length - 1}
+                                hidden={this.state.disableReplay}>
+                                    Next
                         </button>
                     </div>
                 </div>
@@ -345,6 +362,8 @@ class DominoGame extends Component {
                     />
                     <GameOverPopup
                         showPopup={this.state.showGameOverPopup}
+                        startNewGameFunction={this.startNewGame}
+                        enableReplayFunction={this.enableReplay}
                         closeFunction={this.closeGameOverPopup}
                     />
                 </div>

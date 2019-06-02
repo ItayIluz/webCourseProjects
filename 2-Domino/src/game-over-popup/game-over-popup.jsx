@@ -10,8 +10,12 @@ class GameOverPopup extends Component {
     return (
       <div className={"popup-message " + (this.props.showPopup ? "show-popup" : "")}>
         <h1>Game Over</h1>
-        <div className="popup-text">this is the message</div>
-        <button className="button" onClick={this.props.closeFunction}>OK</button>
+        <div className="popup-text">{this.props.gameOverMessage}</div>
+        <div className="button-container">
+          <button className="button" onClick={this.props.closeFunction}>Close</button>
+          <button className="button" onClick={this.props.startNewGameFunction}>Start a New Game</button>
+          <button className="button" onClick={this.props.enableReplayFunction}>Replay</button>
+        </div>
     </div>
     );
   }

@@ -34,9 +34,9 @@ class DominoStatistics extends Component {
             <div className="statistics-data">{this.props.totalTurns}</div>
         </div>
         <div>
-            <h4>
+           {/* <h4>
                 Player 1:
-            </h4>
+           </h4>*/}
           <div className="player-statistics-container">
               <div className="statistics-field-container">
                   <label className="statistics-field-name">Score:</label>
