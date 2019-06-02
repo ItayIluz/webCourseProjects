@@ -19,7 +19,7 @@ class DominoGame extends Component {
             averageTurnTime: 0,
             showGameOverPopup: false,
             gameHistory: [],
-            gameHistoryRound: 0,
+            gameHistoryRound: -1,
             isGameOver: false,
             disableReplay: true,
         };
@@ -128,29 +128,6 @@ class DominoGame extends Component {
                     .some(position => tile.props.numA === position.requiredNum || tile.props.numB === position.requiredNum)));
     }
 
-    addGameHistory() {
-        let updateDGameHistory = this.state.gameHistory;
-        let playerHandCopy = [];
-        let boardTilesCopy = [];
-
-        for (let i = 0; i < this.state.playerHand.length; i++)
-            playerHandCopy.push(React.cloneElement(this.state.playerHand[i]));
-
-        for (let i = 0; i < this.state.boardTiles.length; i++)
-            boardTilesCopy.push(React.cloneElement(this.state.boardTiles[i]));
-
-        updateDGameHistory.push({
-            playerHand: playerHandCopy,
-            boardTiles: boardTilesCopy,
-            score: this.state.score,
-            gameTime: this.state.gameTime,
-            totalTurns: this.state.totalTurns,
-            numOfDraws: this.state.numOfDraws,
-            averageTurnTime: this.state.averageTurnTime,
-        });
-        this.setState({gameHistory: updateDGameHistory, gameHistoryRound: this.state.gameHistoryRound + 1});
-    }
-
     setGameOver() {
         this.setState({isGameOver: true});
         this.openGameOverPopup();
@@ -161,8 +138,6 @@ class DominoGame extends Component {
         if (this.state.boardTiles.length === 0) {
             this.addTileToBoard(clickedTile, {x: 0, y: 0, spin: 0});
             this.removeTileFromHand(clickedTile);
-            this.updateStatistics(clickedTile);
-            this.addGameHistory();
         } else {
             if (this.state.selectedTile !== null && this.state.selectedTile !== clickedTile) {
                 for (let i = 0; i < this.state.playerHand.length; i++)
@@ -187,7 +162,10 @@ class DominoGame extends Component {
                 fatherPosition={fatherPosition}
                 onClick={this.selectTile}
             />
-        )
+        );
+        this.updateStatistics(tile);
+        this.addGameHistory();
+        this.checkGameOver();
     }
 
     updateTilePositions(positions, key) {
@@ -202,9 +180,6 @@ class DominoGame extends Component {
             }
             this.removeTileFromHand(this.state.selectedTile);
             this.addTileToBoard(this.state.selectedTile, tilePosition.position, fatherPosition);
-            this.updateStatistics(this.state.selectedTile);
-            this.addGameHistory();
-            this.checkGameOver();
             this.setState({selectedTile: null});
             onSuccess();
         } else {
@@ -274,21 +249,66 @@ class DominoGame extends Component {
             this.setState({
                 playerHand: currentPlayerHand,
                 numOfDraws: this.state.numOfDraws + 1
-            });
+            }, () => this.addGameHistory());
+        } else {
+            if(this.state.playerHand.length == 6)
+                this.addGameHistory();
         }
     }
 
-    previousHistory() {
+    addGameHistory() {
+        let updatedGameHistory = this.state.gameHistory;
+        let playerHandCopy = [];
+        let boardTilesCopy = [];
+
+        for (let i = 0; i < this.state.playerHand.length; i++)
+            playerHandCopy.push(React.cloneElement(this.state.playerHand[i]));
+
+        for (let i = 0; i < this.state.boardTiles.length; i++)
+            boardTilesCopy.push(React.cloneElement(this.state.boardTiles[i]));
+
+        updatedGameHistory.push({
+            playerHand: playerHandCopy,
+            boardTiles: boardTilesCopy,
+            score: this.state.score,
+            gameTime: this.state.gameTime,
+            totalTurns: this.state.totalTurns,
+            numOfDraws: this.state.numOfDraws,
+            averageTurnTime: this.state.averageTurnTime,
+        });
+        this.setState({gameHistory: updatedGameHistory, gameHistoryRound: this.state.gameHistoryRound + 1});
+    }
+
+    previousHistory(isUndo) {
+        let currentGameHistory = this.state.gameHistory;
         let round = this.state.gameHistoryRound - 1;
         if (round >= 0) {
+
+            let newPlayHand = [];
+            let newBoardTiles = [];
+
+            if(isUndo){
+                currentGameHistory.pop();                
+
+                for (let i = 0; i < currentGameHistory[round].playerHand.length; i++)
+                    newPlayHand.push(React.cloneElement(currentGameHistory[round].playerHand[i]));
+
+                for (let i = 0; i < currentGameHistory[round].boardTiles.length; i++)
+                    newBoardTiles.push(React.cloneElement(currentGameHistory[round].boardTiles[i]));
+            } else {
+                newPlayHand = currentGameHistory[round].playerHand;
+                newBoardTiles = currentGameHistory[round].boardTiles;
+            }
+
             this.setState({
-                boardTiles: this.state.gameHistory[round].boardTiles,
-                playerHand: this.state.gameHistory[round].playerHand,
-                score: this.state.gameHistory[round].score,
-                gameTime: this.state.gameHistory[round].gameTime,
-                totalTurns: this.state.gameHistory[round].totalTurns,
-                numOfDraws: this.state.gameHistory[round].numOfDraws,
-                averageTurnTime: this.state.gameHistory[round].averageTurnTime,
+                boardTiles: newBoardTiles,
+                playerHand: newPlayHand,
+                score: currentGameHistory[round].score,
+                gameTime: currentGameHistory[round].gameTime,
+                totalTurns: currentGameHistory[round].totalTurns,
+                numOfDraws: currentGameHistory[round].numOfDraws,
+                averageTurnTime: currentGameHistory[round].averageTurnTime,
+                gameHistory: currentGameHistory,
                 gameHistoryRound: round,
             })
         }
@@ -334,8 +354,9 @@ class DominoGame extends Component {
                         <button className="button" onClick={() => this.drawFromDeck(false)} disabled={this.state.dominoDeck.length === 0}>
                             {this.state.dominoDeck.length !== 0 ? "Draw From Deck" : "No more tiles"}
                         </button>
+                        <button className="button" onClick={() => this.previousHistory(true)} hidden={this.state.isGameOver} disabled={this.state.gameHistoryRound === 0}>Undo Move</button>
                         <button className="button" onClick={this.startNewGame} hidden={!this.state.isGameOver}>Start a New Game</button>
-                        <button className="button" onClick={this.previousHistory}
+                        <button className="button" onClick={() => this.previousHistory(false)}
                                 disabled={this.state.gameHistoryRound === 0}
                                 hidden={this.state.disableReplay}>
                                     Previous
