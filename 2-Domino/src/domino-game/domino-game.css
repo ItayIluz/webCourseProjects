@@ -9,7 +9,7 @@ body, html {
     overflow: hidden;
 }
 
-.main-container{
+.main-container {
     height: 100vh;
 }
 
@@ -32,13 +32,13 @@ body, html {
     margin-right: 20px;
 }
 
-.row-container{
+.row-container {
     display: flex;
     justify-content: center;
     height: 100%;
 }
 
-.tiles-container{
+.tiles-container {
     position: absolute;
     top: 0;
     display: flex;
@@ -46,6 +46,15 @@ body, html {
     justify-content: center;
     min-width: 100%;
     min-height: 100%;
+}
+
+@keyframes FlyFromHell {
+    0% {
+        filter: hue-rotate(30deg);
+    }
+    100% {
+        filter: hue-rotate(0deg);
+    }
 }
 
 .game-board {
@@ -79,7 +88,7 @@ body, html {
     background: #FDA50F;
 }
 
-.button:disabled{
+.button:disabled {
     background: #a89168;
 }
 

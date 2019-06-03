@@ -224,7 +224,7 @@ class DominoGame extends Component {
             scrollTop += tileWidth * 2;
             scrollLeft += tileHeight;
         }
-        this.tilesContainer.current.parentElement.scrollTo(scrollLeft, scrollTop);
+        //this.tilesContainer.current.parentElement.scrollTo(scrollLeft, scrollTop);
     }
 
     canPlaceSelectedTile(tilePosition) {
@@ -316,10 +316,14 @@ class DominoGame extends Component {
         let round = this.state.gameHistoryRound - 1;
         if (round >= 0) {
 
+            let undoChangedBoard = false;
+            let removedTile;
             let newPlayHand = [];
             let newBoardTiles = [];
 
             if (isUndo) {
+                undoChangedBoard = currentGameHistory[round+1].numOfDraws === currentGameHistory[round].numOfDraws;
+                removedTile = currentGameHistory[round+1].boardTiles[currentGameHistory[round+1].boardTiles.length-1];
                 currentGameHistory.pop();
 
                 for (let i = 0; i < currentGameHistory[round].playerHand.length; i++)
@@ -342,7 +346,14 @@ class DominoGame extends Component {
                 averageTurnTime: currentGameHistory[round].averageTurnTime,
                 gameHistory: currentGameHistory,
                 gameHistoryRound: round,
-            })
+            }, () => {
+                if(undoChangedBoard) {
+                    let fatherTile = newBoardTiles.find(tile => tile.props.position.x === removedTile.props.fatherPosition.x && tile.props.position.y === removedTile.props.fatherPosition.y && tile.props.position.spin === removedTile.props.fatherPosition.spin);
+                    if (fatherTile) {
+                        fatherTile.ref.current.addLostPositionsToPossibleAdjacentTiles(removedTile.props.position);
+                    }
+                }
+            });
         }
     }
 

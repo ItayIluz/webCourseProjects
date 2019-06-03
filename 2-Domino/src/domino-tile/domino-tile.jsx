@@ -29,7 +29,9 @@ class DominoTile extends Component {
         this.getAdjacentOfDouble = this.getAdjacentOfDouble.bind(this);
         this.filterPositions = this.filterPositions.bind(this);
         this.createTilePositions = this.createTilePositions.bind(this);
+        this.getAnimationClassName = this.getAnimationClassName.bind(this);
         this.toggleSelect = this.toggleSelect.bind(this);
+        this.addLostPositionsToPossibleAdjacentTiles = this.addLostPositionsToPossibleAdjacentTiles.bind(this);
     }
 
     calculatePossibleAdjacentTiles(position, numA, numB, takenPosition) {
@@ -165,13 +167,13 @@ class DominoTile extends Component {
     }
 
     handleClick() {
-        if(!this.state.isSelected)
+        if (!this.state.isSelected)
             this.props.onClick(this);
 
-        this.toggleSelect(!this.state.isSelected);        
+        this.toggleSelect(!this.state.isSelected);
     }
 
-    toggleSelect(select){
+    toggleSelect(select) {
         this.setState({isSelected: select});
     }
 
@@ -186,8 +188,8 @@ class DominoTile extends Component {
         })
     }
 
-    updatePossibleAdjacentTiles(possibleAdjacentTiles){
-        this.setState({possibleAdjacentTiles: possibleAdjacentTiles}, () =>{
+    updatePossibleAdjacentTiles(possibleAdjacentTiles) {
+        this.setState({possibleAdjacentTiles: possibleAdjacentTiles}, () => {
             this.props.updateTilePositions(possibleAdjacentTiles, `[${this.props.numA},${this.props.numB}]`);
         });
     }
@@ -205,6 +207,22 @@ class DominoTile extends Component {
         return tilePositions;
     }
 
+    addLostPositionsToPossibleAdjacentTiles(position) {
+        let lostPositions = this.calculatePossibleAdjacentTiles(this.props.position, this.props.numA, this.props.numB).filter((tilePosition) => {
+            if (position.x === tilePosition.position.x && Math.abs(position.y - tilePosition.position.y) <= 1) {
+                return true;
+            }
+            if (position.y === tilePosition.position.y && Math.abs(position.x - tilePosition.position.x) <= 1) {
+                return true;
+            }
+            return false
+        });
+
+        this.updatePossibleAdjacentTiles(this.state.possibleAdjacentTiles.concat(lostPositions));
+
+
+    }
+
     createTilePositions() {
         return this.state.possibleAdjacentTiles.map(tp => (
             <TilePosition key={`${tp.requiredNum}_${tp.position.x}_${tp.position.y}_${tp.position.spin}`}
@@ -214,10 +232,23 @@ class DominoTile extends Component {
             />))
     }
 
+    getAnimationClassName(){
+        if(!this.props.animation || this.props.animation.none){
+            return '';
+        }
+        else if(this.props.animation.inHand){
+            return 'anim-in-hand';
+        }
+        else if(this.props.animation.onBoard){
+            return 'anim-on-board';
+        }
+
+    }
+
     render() {
         return (
             <div
-                className={"tile-container" + (this.props.inHand ? " in-hand" : " on-board") + (this.state.isSelected ? " selected" : "")}>
+                className={"tile-container" + (this.props.inHand ? " in-hand" : " on-board") + (this.state.isSelected ? " selected" : "") + ' ' + this.getAnimationClassName()}>
                 <div
                     style={this.transform()}
                     className={"domino-tile"}
