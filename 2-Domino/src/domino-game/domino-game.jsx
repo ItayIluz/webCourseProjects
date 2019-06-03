@@ -26,9 +26,10 @@ class DominoGame extends Component {
 
         this.gameTimeInterval = null;
 
-        this.gameBoard = React.createRef();
+        this.tilesContainer = React.createRef();
         this.availablePositions = {};
 
+        this.expandBoard = this.expandBoard.bind(this);
         this.hasNoValidMoves = this.hasNoValidMoves.bind(this);
         this.updateTilePositions = this.updateTilePositions.bind(this);
         this.placeSelectedTile = this.placeSelectedTile.bind(this);
@@ -36,7 +37,6 @@ class DominoGame extends Component {
         this.canPlaceSelectedTile = this.canPlaceSelectedTile.bind(this);
         this.addTileToBoard = this.addTileToBoard.bind(this);
         this.drawFromDeck = this.drawFromDeck.bind(this);
-        this.setTileToAdd = this.setTileToAdd.bind(this);
         this.selectTile = this.selectTile.bind(this);
         this.removeTileFromHand = this.removeTileFromHand.bind(this);
         this.updateStatistics = this.updateStatistics.bind(this);
@@ -58,7 +58,7 @@ class DominoGame extends Component {
 
     startNewGame() {
 
-        if(this.state.isGameOver)
+        if (this.state.isGameOver)
             this.closeGameOverPopup();
 
         let newDominoDeck = [];
@@ -114,9 +114,12 @@ class DominoGame extends Component {
     }
 
     checkGameOver() {
-        if (this.state.playerHand.length === 0 && this.state.dominoDeck.length === 0) {
+        if(this.state.dominoDeck.length !== 0){
+            return;
+        }
+        if (this.state.playerHand.length === 0) {
             this.setGameOver();
-        } else if (this.state.dominoDeck.length === 0 && this.hasNoValidMoves()) {
+        } else if (this.hasNoValidMoves()) {
             this.setGameOver();
         }
     }
@@ -163,9 +166,9 @@ class DominoGame extends Component {
                 onClick={this.selectTile}
             />
         );
+
         this.updateStatistics(tile);
         this.addGameHistory();
-        this.checkGameOver();
     }
 
     updateTilePositions(positions, key) {
@@ -173,14 +176,15 @@ class DominoGame extends Component {
     }
 
     placeSelectedTile(tilePosition, fatherPosition, onSuccess) {
-
         if (this.canPlaceSelectedTile(tilePosition)) {
             if (this.shouldSpinSelectedTile(tilePosition)) {
                 tilePosition.position.spin += 2;
             }
             this.removeTileFromHand(this.state.selectedTile);
+            this.expandBoard(tilePosition);
             this.addTileToBoard(this.state.selectedTile, tilePosition.position, fatherPosition);
             this.setState({selectedTile: null});
+            this.checkGameOver();
             onSuccess();
         } else {
             console.warn("tried to place tile in wrong position");
@@ -189,6 +193,33 @@ class DominoGame extends Component {
 
     shouldSpinSelectedTile(tilePosition) {
         return this.state.selectedTile.props.numB === tilePosition.requiredNum;
+    }
+
+    expandBoard(tilePosition) {
+        let tileWidth = 36;
+        let tileHeight = 72;
+        let scrollLeft = this.tilesContainer.current.parentElement.scrollLeft;
+        let scrollTop = this.tilesContainer.current.parentElement.scrollTop;
+
+        if (!this.tilesContainer.current.style.width) {
+            this.tilesContainer.current.style.width = this.tilesContainer.current.clientWidth + 'px';
+        }
+        if (!this.tilesContainer.current.style.height) {
+            this.tilesContainer.current.style.height = this.tilesContainer.current.clientHeight + 'px';
+        }
+
+        if (tilePosition.position.spin % 2 === 0) {
+            console.log(this.tilesContainer.current.style.width);
+            this.tilesContainer.current.style.width = `${this.tilesContainer.current.clientWidth + tileWidth * 2}px`;
+            this.tilesContainer.current.style.height = `${this.tilesContainer.current.clientHeight + tileHeight * 2}px`;
+            scrollLeft += tileWidth;
+            scrollTop += tileHeight;
+        } else {
+            this.tilesContainer.current.style.width = `${this.tilesContainer.current.clientHeight + tileHeight * 2}px`;
+            this.tilesContainer.current.style.height = `${this.tilesContainer.current.clientWidth + tileWidth * 2}px`;
+            scrollLeft += tileHeight / 2;
+        }
+        this.tilesContainer.current.parentElement.scrollTo(scrollLeft, scrollTop);
     }
 
     canPlaceSelectedTile(tilePosition) {
@@ -217,10 +248,6 @@ class DominoGame extends Component {
         this.setState({playerHand: currentPlayerHand});
     }
 
-    setTileToAdd(tile) {
-        this.setState({tileToAdd: tile});
-        this.gameBoard.current.addTile(tile);
-    }
 
     drawFromDeck(gameStart) {
         let currentPlayerHand = this.state.playerHand;
@@ -251,7 +278,7 @@ class DominoGame extends Component {
                 numOfDraws: this.state.numOfDraws + 1
             }, () => this.addGameHistory());
         } else {
-            if(this.state.playerHand.length == 6)
+            if (this.state.playerHand.length == 6)
                 this.addGameHistory();
         }
     }
@@ -287,8 +314,8 @@ class DominoGame extends Component {
             let newPlayHand = [];
             let newBoardTiles = [];
 
-            if(isUndo){
-                currentGameHistory.pop();                
+            if (isUndo) {
+                currentGameHistory.pop();
 
                 for (let i = 0; i < currentGameHistory[round].playerHand.length; i++)
                     newPlayHand.push(React.cloneElement(currentGameHistory[round].playerHand[i]));
@@ -330,7 +357,7 @@ class DominoGame extends Component {
         }
     }
 
-    enableReplay(){
+    enableReplay() {
         this.setState({disableReplay: false}, this.closeGameOverPopup);
     }
 
@@ -351,26 +378,31 @@ class DominoGame extends Component {
                         {this.state.playerHand}
                     </div>
                     <div>
-                        <button className="button" onClick={() => this.drawFromDeck(false)} disabled={this.state.dominoDeck.length === 0}>
+                        <button className="button" onClick={() => this.drawFromDeck(false)}
+                                disabled={this.state.dominoDeck.length === 0}>
                             {this.state.dominoDeck.length !== 0 ? "Draw From Deck" : "No more tiles"}
                         </button>
-                        <button className="button" onClick={() => this.previousHistory(true)} hidden={this.state.isGameOver} disabled={this.state.gameHistoryRound === 0}>Undo Move</button>
-                        <button className="button" onClick={this.startNewGame} hidden={!this.state.isGameOver}>Start a New Game</button>
+                        <button className="button" onClick={() => this.previousHistory(true)}
+                                hidden={this.state.isGameOver} disabled={this.state.gameHistoryRound === 0}>Undo Move
+                        </button>
+                        <button className="button" onClick={this.startNewGame} hidden={!this.state.isGameOver}>Start a
+                            New Game
+                        </button>
                         <button className="button" onClick={() => this.previousHistory(false)}
                                 disabled={this.state.gameHistoryRound === 0}
                                 hidden={this.state.disableReplay}>
-                                    Previous
+                            Previous
                         </button>
                         <button className="button" onClick={this.nextHistory}
                                 disabled={this.state.gameHistoryRound === this.state.gameHistory.length - 1}
                                 hidden={this.state.disableReplay}>
-                                    Next
+                            Next
                         </button>
                     </div>
                 </div>
                 <div className="row-container">
                     <div className="game-board">
-                        <div className="tiles-container">
+                        <div className="tiles-container" ref={this.tilesContainer}>
                             {this.state.boardTiles}
                         </div>
                     </div>

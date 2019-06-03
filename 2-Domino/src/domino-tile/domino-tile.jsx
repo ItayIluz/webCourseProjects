@@ -181,8 +181,9 @@ class DominoTile extends Component {
     placeSelectedTileAndUpdatePositions(tilePosition) {
         this.props.placeSelectedTile(tilePosition, this.props.position, () => {
             let possibleAdjacentTiles = this.filterPositions(this.state.possibleAdjacentTiles, tilePosition.position);
-            this.setState({possibleAdjacentTiles: possibleAdjacentTiles});
-            this.props.updateTilePositions(possibleAdjacentTiles, `[${this.props.numA},${this.props.numB}]`);
+            this.setState({possibleAdjacentTiles: possibleAdjacentTiles}, () =>{
+                this.props.updateTilePositions(possibleAdjacentTiles, `[${this.props.numA},${this.props.numB}]`);
+            });
         })
     }
 

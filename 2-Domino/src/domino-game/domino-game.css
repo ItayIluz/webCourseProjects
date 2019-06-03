@@ -39,12 +39,13 @@ body, html {
 }
 
 .tiles-container{
-    border: 5px solid darkred;
-    width: 120vh;
-    height: 85vh;
+    position: absolute;
+    top: 0;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    min-width: 100%;
+    min-height: 100%;
 }
 
 .game-board {
@@ -55,7 +56,8 @@ body, html {
     justify-content: center;
     align-items: center;
     background: #bebebe;
-    overflow: scroll;
+    overflow-x: scroll;
+    overflow-y: scroll;
     flex-grow: 1;
 }
 
