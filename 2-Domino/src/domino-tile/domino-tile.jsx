@@ -20,6 +20,7 @@ class DominoTile extends Component {
 
         this.placeSelectedTileAndUpdatePositions = this.placeSelectedTileAndUpdatePositions.bind(this);
         this.handleClick = this.handleClick.bind(this);
+        this.updatePossibleAdjacentTiles = this.updatePossibleAdjacentTiles.bind(this);
         this.transform = this.transform.bind(this);
         this.isDouble = this.isDouble.bind(this);
         this.isVertical = this.isVertical.bind(this);
@@ -181,20 +182,22 @@ class DominoTile extends Component {
     placeSelectedTileAndUpdatePositions(tilePosition) {
         this.props.placeSelectedTile(tilePosition, this.props.position, () => {
             let possibleAdjacentTiles = this.filterPositions(this.state.possibleAdjacentTiles, tilePosition.position);
-            this.setState({possibleAdjacentTiles: possibleAdjacentTiles}, () =>{
-                this.props.updateTilePositions(possibleAdjacentTiles, `[${this.props.numA},${this.props.numB}]`);
-            });
+            this.updatePossibleAdjacentTiles(possibleAdjacentTiles);
         })
+    }
+
+    updatePossibleAdjacentTiles(possibleAdjacentTiles){
+        this.setState({possibleAdjacentTiles: possibleAdjacentTiles}, () =>{
+            this.props.updateTilePositions(possibleAdjacentTiles, `[${this.props.numA},${this.props.numB}]`);
+        });
     }
 
     filterPositions(tilePositions, takenPosition) {
         tilePositions = tilePositions.filter(tilePosition => {
             if (takenPosition.x === tilePosition.position.x && Math.abs(takenPosition.y - tilePosition.position.y) <= 1) {
-                console.log('filtered', this.props.numA, this.props.numB);
                 return false;
             }
             if (takenPosition.y === tilePosition.position.y && Math.abs(takenPosition.x - tilePosition.position.x) <= 1) {
-                console.log('filtered', this.props.numA, this.props.numB);
                 return false;
             }
             return true;

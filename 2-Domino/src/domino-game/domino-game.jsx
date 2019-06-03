@@ -114,7 +114,7 @@ class DominoGame extends Component {
     }
 
     checkGameOver() {
-        if(this.state.dominoDeck.length !== 0){
+        if (this.state.dominoDeck.length !== 0) {
             return;
         }
         if (this.state.playerHand.length === 0) {
@@ -152,7 +152,9 @@ class DominoGame extends Component {
     }
 
     addTileToBoard(tile, position, fatherPosition) {
-        this.state.boardTiles.push(
+        let currentBoard = this.state.boardTiles;
+
+        currentBoard.push(
             <DominoTile
                 key={`A${tile.props.numA}_B${tile.props.numB}`}
                 inHand={false}
@@ -167,8 +169,13 @@ class DominoGame extends Component {
             />
         );
 
-        this.updateStatistics(tile);
-        this.addGameHistory();
+        this.setState({boardTiles: currentBoard}, () => {
+            setTimeout(() => {
+                this.expandBoard(position);
+            }, 0);
+            this.updateStatistics(tile);
+            this.addGameHistory();
+        });
     }
 
     updateTilePositions(positions, key) {
@@ -181,23 +188,21 @@ class DominoGame extends Component {
                 tilePosition.position.spin += 2;
             }
             this.removeTileFromHand(this.state.selectedTile);
-            this.expandBoard(tilePosition);
             this.addTileToBoard(this.state.selectedTile, tilePosition.position, fatherPosition);
             this.setState({selectedTile: null});
             this.checkGameOver();
             onSuccess();
-        } else {
-            console.warn("tried to place tile in wrong position");
         }
     }
+
 
     shouldSpinSelectedTile(tilePosition) {
         return this.state.selectedTile.props.numB === tilePosition.requiredNum;
     }
 
-    expandBoard(tilePosition) {
-        let tileWidth = 36;
+    expandBoard(position) {
         let tileHeight = 72;
+        let tileWidth = 36;
         let scrollLeft = this.tilesContainer.current.parentElement.scrollLeft;
         let scrollTop = this.tilesContainer.current.parentElement.scrollTop;
 
@@ -208,16 +213,16 @@ class DominoGame extends Component {
             this.tilesContainer.current.style.height = this.tilesContainer.current.clientHeight + 'px';
         }
 
-        if (tilePosition.position.spin % 2 === 0) {
-            console.log(this.tilesContainer.current.style.width);
-            this.tilesContainer.current.style.width = `${this.tilesContainer.current.clientWidth + tileWidth * 2}px`;
+        if (position.spin % 2 === 0) {
+            this.tilesContainer.current.style.width = `${this.tilesContainer.current.clientWidth + tileWidth}px`;
             this.tilesContainer.current.style.height = `${this.tilesContainer.current.clientHeight + tileHeight * 2}px`;
-            scrollLeft += tileWidth;
+            scrollLeft += tileWidth / 2;
             scrollTop += tileHeight;
         } else {
             this.tilesContainer.current.style.width = `${this.tilesContainer.current.clientHeight + tileHeight * 2}px`;
-            this.tilesContainer.current.style.height = `${this.tilesContainer.current.clientWidth + tileWidth * 2}px`;
-            scrollLeft += tileHeight / 2;
+            this.tilesContainer.current.style.height = `${this.tilesContainer.current.clientWidth + tileWidth}px`;
+            scrollTop += tileWidth * 2;
+            scrollLeft += tileHeight;
         }
         this.tilesContainer.current.parentElement.scrollTo(scrollLeft, scrollTop);
     }
@@ -278,7 +283,7 @@ class DominoGame extends Component {
                 numOfDraws: this.state.numOfDraws + 1
             }, () => this.addGameHistory());
         } else {
-            if (this.state.playerHand.length == 6)
+            if (this.state.playerHand.length === 6)
                 this.addGameHistory();
         }
     }
