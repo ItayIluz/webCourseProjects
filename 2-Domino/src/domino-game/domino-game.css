@@ -48,14 +48,6 @@ body, html {
     min-height: 100%;
 }
 
-@keyframes FlyFromHell {
-    0% {
-        filter: hue-rotate(30deg);
-    }
-    100% {
-        filter: hue-rotate(0deg);
-    }
-}
 
 .game-board {
     position: relative;

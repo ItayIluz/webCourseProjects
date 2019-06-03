@@ -5,9 +5,9 @@ class TilePosition extends Component {
     constructor(props) {
         super(props);
         this.myPosition = {
-            x: this.props.tilePosition.position.x,// - this.props.parentTilePosition.x,
-            y: this.props.tilePosition.position.y,// - this.props.parentTilePosition.y,
-            spin: this.props.tilePosition.position.spin// - this.props.parentTilePosition.spin,
+            x: this.props.tilePosition.position.x,
+            y: this.props.tilePosition.position.y,
+            spin: this.props.tilePosition.position.spin
 
         };
 
@@ -27,7 +27,7 @@ class TilePosition extends Component {
 
     render() {
         return (
-            <div className={'tile-position'} style={this.transform()} onClick={this.place}>
+            <div className={"tile-position"} style={this.transform()} onClick={this.place}>
 
             </div>
         );

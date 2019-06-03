@@ -58,3 +58,53 @@
 .tile-container.in-hand.selected .domino-tile {
     box-shadow: 0 5px 20px rgba(255, 212, 0, 1);
 }
+
+.anim-in-hand{
+    animation: FlyIn 700ms ease-out forwards;
+}
+
+.anim-on-board{
+    animation: BlurIn 500ms ease-in-out forwards;
+}
+
+.anim-final-glow .domino-tile{
+    animation: FinalGlow 500ms ease-in-out forwards;
+}
+
+@keyframes FlyIn {
+    0%{
+        transform: translate3d(0, -200px, 0) rotate(360deg);
+    }
+    40%{
+        transform: translate3d(0, 0, 0) rotate(360deg);
+    }
+    70%{
+        transform: translate3d(0, -50px, 0) rotate(120deg);
+    }
+    100%{
+        transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+}
+
+@keyframes BlurIn {
+    0%{
+        filter: blur(10px);
+        opacity: 0;
+    }
+    100%{
+        filter: blur(0);
+        opacity: 1;
+    }
+}
+
+@keyframes FinalGlow {
+    0% {
+        box-shadow: 0 0 30px rgba(100, 255, 180, 0);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(100, 255, 180, 1);
+    }
+    100% {
+        box-shadow: 0 0 30px rgba(100, 255, 180, 0);
+    }
+}
