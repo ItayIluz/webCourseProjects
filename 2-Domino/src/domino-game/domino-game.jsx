@@ -329,6 +329,7 @@ class DominoGame extends Component {
     previousHistory(isUndo) {
         let currentGameHistory = this.state.gameHistory;
         let round = this.state.gameHistoryRound - 1;
+    
         if (round >= 0) {
 
             let undoChangedBoard = false;
