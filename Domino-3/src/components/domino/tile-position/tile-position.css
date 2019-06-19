@@ -1,0 +1,43 @@
+.tile-position {
+    width: 100%;
+    height: 100%;
+    border: 2px solid rgba(200, 0, 150, .4);
+    transform-origin: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    transition: box-shadow 250ms ease-in;
+}
+
+.tile-position:not(.taken):hover {
+    box-shadow: 0 0 10px rgba(255, 150, 0, 1);
+    cursor: pointer;
+}
+
+.tile-break {
+    width: 100%;
+    background: black;
+    height: 2px;
+    margin: 1px 0;
+}
+
+.tile-dot.black {
+    background: black;
+    border: 1px solid black;
+}
+
+.tile-dot.white {
+    background: white;
+    border: 1px solid white;
+}
+
+.domino-tile.on-board:hover {
+
+}
+
+.domino-tile.in-hand {
+    cursor: pointer;
+    margin: 0 7px;
+}
+

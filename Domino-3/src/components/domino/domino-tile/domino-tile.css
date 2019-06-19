@@ -1,0 +1,110 @@
+.tile-container.on-board {
+    position: absolute;
+    width: 36px;
+    height: 72px;
+}
+
+.tile-container.in-hand {
+    cursor: pointer;
+    margin: 0 7px;
+}
+
+.domino-tile {
+    border: 1px solid black;
+    border-radius: 5px;
+    background: white;
+    color: black;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 34px;
+    height: 70px;
+}
+
+.domino-tile.on-board {
+    position: absolute;
+}
+
+.domino-tile.in-hand {
+    cursor: pointer;
+    margin: 0 7px;
+}
+
+.tile-break {
+    width: 100%;
+    background: black;
+    height: 2px;
+    margin: 1px 0;
+}
+
+.tile-dot.black {
+    background: black;
+    border: 1px solid black;
+}
+
+.tile-dot.white {
+    background: white;
+    border: 1px solid white;
+}
+
+
+
+.tile-position {
+    width: 32px;
+    height: 74px;
+    border: 1px solid deeppink;
+}
+
+.tile-container.in-hand.selected .domino-tile {
+    box-shadow: 0 5px 20px rgba(255, 212, 0, 1);
+}
+
+.anim-in-hand{
+    animation: FlyIn 700ms ease-out forwards;
+}
+
+.anim-on-board{
+    animation: BlurIn 500ms ease-in-out forwards;
+}
+
+.anim-final-glow .domino-tile{
+    animation: FinalGlow 500ms ease-in-out forwards;
+}
+
+@keyframes FlyIn {
+    0%{
+        transform: translate3d(0, -200px, 0) rotate(360deg);
+    }
+    40%{
+        transform: translate3d(0, 0, 0) rotate(360deg);
+    }
+    70%{
+        transform: translate3d(0, -50px, 0) rotate(120deg);
+    }
+    100%{
+        transform: translate3d(0, 0, 0) rotate(0deg);
+    }
+}
+
+@keyframes BlurIn {
+    0%{
+        filter: blur(10px);
+        opacity: 0;
+    }
+    100%{
+        filter: blur(0);
+        opacity: 1;
+    }
+}
+
+@keyframes FinalGlow {
+    0% {
+        box-shadow: 0 0 30px rgba(100, 255, 180, 0);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(100, 255, 180, 1);
+    }
+    100% {
+        box-shadow: 0 0 30px rgba(100, 255, 180, 0);
+    }
+}

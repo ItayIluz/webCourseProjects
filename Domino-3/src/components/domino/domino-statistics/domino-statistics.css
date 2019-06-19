@@ -1,0 +1,33 @@
+.statistics-field-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.statistics-field-container:not(last-child) {
+    margin-bottom: 5px;
+}
+/*
+.player-statistics-container {
+    padding-left: 20px;
+}*/
+
+.statistics-field-name {
+    padding: 10px 0;
+}
+
+.statistics-data {
+    max-width: 100px;
+    width: 100px;
+    background: rgba(200, 200, 200, .3);
+    padding: 10px;
+}
+
+.statistics-sidebar {
+    background: #F3FFC6;
+    width: 20%;
+    max-width: 500px;
+    min-height: 100%;
+    min-width: 360px;
+    color: #394053;
+    padding: 20px 10px 0 10px;
+}
