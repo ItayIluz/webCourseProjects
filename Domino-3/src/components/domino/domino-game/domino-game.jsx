@@ -3,10 +3,11 @@ import DominoTile from "../domino-tile/domino-tile.jsx";
 import DominoStatistics from "../domino-statistics/domino-statistics.jsx";
 import "./domino-game.css";
 import GameOverPopup from "../game-over-popup/game-over-popup.jsx";
+import WaitingForPlayersDialog from '../waiting-for-players-dialog.jsx';
 
 class DominoGame extends Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             dominoDeck: [],
             playerHand: [],
@@ -22,6 +23,8 @@ class DominoGame extends Component {
             gameHistoryRound: -1,
             isGameOver: false,
             disableReplay: true,
+            gameTitle: this.props.gameTitle,
+            gameStatus: "Pending",
         };
 
         this.gameTimeInterval = null;
@@ -50,10 +53,34 @@ class DominoGame extends Component {
         this.previousHistory = this.previousHistory.bind(this);
         this.nextHistory = this.nextHistory.bind(this);
         this.enableReplay = this.enableReplay.bind(this);
+        this.getGameData = this.getGameData.bind(this);
     }
 
     componentDidMount() {
         this.startNewGame();
+        this.getGameData();
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.gameTimeInterval);
+        if (this.timeoutId) {
+        clearTimeout(this.timeoutId);
+        }
+    }
+    
+    getGameData() {
+        return fetch('/games/gameData/' + this.state.gameTitle, {method: 'GET', credentials: 'include'})
+        .then((response) => {
+            if (!response.ok){
+                throw response;
+            }
+            this.timeoutId = setTimeout(this.getGameData, 200);
+            return response.json();            
+        })
+        .then(gameData => {
+           this.setState({gameStatus: gameData.status});
+        })
+        .catch(err => {throw err});
     }
 
     startNewGame() {
@@ -110,10 +137,6 @@ class DominoGame extends Component {
             totalTurns: newTotalTurns,
             averageTurnTime: this.state.gameTime / newTotalTurns
         })
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.gameTimeInterval);
     }
 
     checkGameOver() {
@@ -417,22 +440,22 @@ class DominoGame extends Component {
                         {this.state.playerHand}
                     </div>
                     <div>
-                        <button className="button" onClick={() => this.drawFromDeck(false)}
+                        <button className="my-button" onClick={() => this.drawFromDeck(false)}
                                 disabled={this.state.dominoDeck.length === 0 || this.state.isGameOver}>
                             {this.state.dominoDeck.length !== 0 ? "Draw From Deck" : "No more tiles"}
                         </button>
-                        <button className="button" onClick={() => this.previousHistory(true)}
+                        <button className="my-button" onClick={() => this.previousHistory(true)}
                                 hidden={this.state.isGameOver} disabled={this.state.gameHistoryRound === 0}>Undo Move
                         </button>
-                        <button className="button" onClick={this.startNewGame} hidden={!this.state.isGameOver || this.state.showGameOverPopup}>Start a
+                        <button className="my-button" onClick={this.startNewGame} hidden={!this.state.isGameOver || this.state.showGameOverPopup}>Start a
                             New Game
                         </button>
-                        <button className="button" onClick={() => this.previousHistory(false)}
+                        <button className="my-button" onClick={() => this.previousHistory(false)}
                                 disabled={this.state.gameHistoryRound === 0}
                                 hidden={this.state.disableReplay}>
                             Previous
                         </button>
-                        <button className="button" onClick={this.nextHistory}
+                        <button className="my-button" onClick={this.nextHistory}
                                 disabled={this.state.gameHistoryRound === this.state.gameHistory.length - 1}
                                 hidden={this.state.disableReplay}>
                             Next
@@ -458,6 +481,13 @@ class DominoGame extends Component {
                         enableReplayFunction={this.enableReplay}
                         closeFunction={this.closeGameOverPopup}
                     />
+                    <div hidden={this.state.gameStatus !== "Pending"} className="dialog-overlay">
+                        <WaitingForPlayersDialog 
+                            //leaveGameFunction={this.handleLeaveGame}
+                            allPlayersAreIn={this.state.gameStatus !== "Pending"}
+                        />
+                    </div>
+                    
                 </div>
             </div>
         );

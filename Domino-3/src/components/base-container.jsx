@@ -1,36 +1,50 @@
 import React, { Component } from "react";
 import SignUpPage from './sign-up-page/sign-up-page.jsx';
 import GamesRoom from './games-room/games-room.jsx';
+import DominoGame from './domino/domino-game/domino-game.jsx';
 
 export default class BaseContainer extends React.Component {
     constructor(args) {
         super(...args);
         this.state = {
             connectedSuccessfully: false,
+            currentGameTitle: null,
             currentUser: {
-                name: ''
+                name: null
             }
         };
         
         this.handleSuccessedLogin = this.handleSuccessedLogin.bind(this);
         this.fetchUserInfo = this.fetchUserInfo.bind(this);
-        this.logoutHandler= this.logoutHandler.bind(this);
+        this.handleLogout= this.handleLogout.bind(this);
+        this.handleJoinGame= this.handleJoinGame.bind(this);
 
         this.getUserName();
     }
     
     render() {        
         if (!this.state.connectedSuccessfully) {
-            return (<SignUpPage loginSuccessHandler={this.handleSuccessedLogin}/>)
+            return (<SignUpPage loginSuccessHandler={this.handleSuccessedLogin}/>);
+        } else if(this.state.currentGameTitle === null){
+            return (<GamesRoom currentUser={this.state.currentUser} handleJoinGame={this.handleJoinGame} handleLogout={this.handleLogout}/>);
         } else {
-            return (<GamesRoom currentUser={this.state.currentUser} logoutHandler={this.logoutHandler}/>)
-        } /* else {
-            return (<DominoGame currentUser={this.state.currentUser}/>)
-        } */
+            return (<DominoGame gameTitle={this.state.currentGameTitle} currentUser={this.state.currentUser}/>)
+        }
     }
 
     handleSuccessedLogin() {
         this.setState(()=>({connectedSuccessfully:true}), this.getUserName);        
+    }
+
+    handleJoinGame(gameTitle){
+        fetch('/games/playerJoinGame', {method: 'POST', body: gameTitle, credentials: 'include'})
+        .then(response => {
+            if (!response.ok) {
+                console.log(`Failed to join game ${gameTitle} `, response);                
+            } else {
+                this.setState({currentGameTitle: gameTitle});
+            }
+        });
     }
 
     getUserName() {
@@ -57,13 +71,13 @@ export default class BaseContainer extends React.Component {
         });
     }
 
-    logoutHandler() {
+    handleLogout() {
         fetch('/users/logout', {method: 'GET', credentials: 'include'})
         .then(response => {
             if (!response.ok) {
                 console.log(`failed to logout user ${this.state.currentUser.name} `, response);                
             }
-            this.setState(()=>({currentUser: {name:''}, connectedSuccessfully: false}));
+            this.setState(()=>({currentUser: {name: null}, connectedSuccessfully: false}));
         });
     }
 }

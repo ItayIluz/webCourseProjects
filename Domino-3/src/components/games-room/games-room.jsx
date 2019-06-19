@@ -24,7 +24,6 @@ class GamesRoom extends Component {
     this.getUsersData = this.getUsersData.bind(this);
     this.handleAddNewGame = this.handleAddNewGame.bind(this);
     this.handleDeleteGame = this.handleDeleteGame.bind(this);
-    this.handleJoinGame = this.handleJoinGame.bind(this);
     this.closeAddNewGameDialog = this.closeAddNewGameDialog.bind(this);    
   }
 
@@ -40,10 +39,6 @@ class GamesRoom extends Component {
     if (this.usersTimeoutId) {
       clearTimeout(this.usersTimeoutId);
     }
-  }
-
-  handleJoinGame(gameTitleParam){
-    //postActionTo(SERVLET_URL, "joinGame", {gameTitle: gameTitleParam}, () => this.setState({joinedGame: true, joinedGameTitle: gameTitleParam}));
   }
 
   handleDeleteGame(gameTitle){
@@ -107,7 +102,7 @@ class GamesRoom extends Component {
         <div className="buttons-container">
           <span><b>Logged in as <u>{this.props.currentUser.name}</u></b></span>
           <button className="my-button" onClick={this.handleAddNewGame}>Add a New Game</button>
-          <button className="my-button" onClick={this.props.logoutHandler}>Logout</button>
+          <button className="my-button" onClick={this.props.handleLogout}>Logout</button>
         </div>
         <div className="tables-container">
           <div className="container-header">
@@ -116,7 +111,7 @@ class GamesRoom extends Component {
               <ActiveGamesTable 
                 currentUser={this.props.currentUser}
                 gamesData={this.state.activeGames}
-                handleJoinGame={this.handleJoinGame}
+                handleJoinGame={this.props.handleJoinGame}
                 handleDeleteGame={this.handleDeleteGame}
               />
             </div>

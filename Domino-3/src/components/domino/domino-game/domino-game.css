@@ -1,13 +1,3 @@
-body, html {
-    width: 100%;
-    height: 100%;
-    background: #505050;
-    font-family: Calibri, sans-serif;
-    color: white;
-    position: relative;
-    margin: 0;
-    overflow: hidden;
-}
 
 .main-container {
     height: 100vh;
@@ -61,28 +51,6 @@ body, html {
     overflow-x: scroll;
     overflow-y: scroll;
     flex-grow: 1;
-}
-
-.button {
-    padding: 5px 20px;
-    border-radius: 5px;
-    border: none;
-    background: #FDA50F;
-    color: black;
-    text-align: center;
-    margin: 0px 5px;
-}
-
-.button:hover {
-    background: #fdd50f;
-}
-
-.button:active {
-    background: #FDA50F;
-}
-
-.button:disabled {
-    background: #a89168;
 }
 
 .tile-in-hand:not(:first-child) {
