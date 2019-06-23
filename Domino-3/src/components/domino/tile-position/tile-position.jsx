@@ -21,7 +21,7 @@ class TilePosition extends Component {
     }
 
     place(){
-        this.props.placeSelectedTile(this.props.tilePosition);
+        this.props.placeSelectedTile(this.props.tilePosition, this.props.parentTilePosition);
     }
 
 

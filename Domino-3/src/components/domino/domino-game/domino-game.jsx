@@ -11,6 +11,7 @@ class DominoGame extends Component {
         this.state = {
             dominoDeck: [],
             playerHand: [],
+            availablePositions: [],
             selectedTile: null,
             boardTiles: [],
             score: 0,
@@ -29,8 +30,7 @@ class DominoGame extends Component {
 
         this.gameTimeInterval = null;
 
-        this.tilesContainer = React.createRef();
-        this.availablePositions = {};
+        this.gameBoard = React.createRef();
 
         this.expandBoard = this.expandBoard.bind(this);
         this.hasNoValidMoves = this.hasNoValidMoves.bind(this);
@@ -66,6 +66,44 @@ class DominoGame extends Component {
         if (this.timeoutId) {
         clearTimeout(this.timeoutId);
         }
+    }
+
+    placeSelectedTile(tilePosition, fatherPosition) {
+        if(!this.canPlaceSelectedTile(tilePosition)){
+            return;
+        }
+        
+        if (this.shouldSpinSelectedTile(tilePosition)) {
+            tilePosition.position.spin += 2;
+        }
+        let tile = this.state.selectedTile;
+        this.removeTileFromHand(this.state.selectedTile);
+        this.addTileToBoard(this.state.selectedTile, tilePosition.position, fatherPosition);
+        let availablePositions = this.getFilteredBoardTilePositions(tilePosition);
+
+        this.setState({
+            availablePositions: availablePositions,
+            selectedTile: null,
+        }, () => {
+            this.expandBoard(tilePosition);
+            this.updateStatistics(tile);
+            this.addGameHistory();
+            this.checkGameOver();
+        })
+    }
+
+    getFilteredBoardTilePositions(takenTilePosition){
+            let tilePositions = this.state.availablePositions.filter(tilePositionElem => {
+            if (takenTilePosition.position.x === tilePositionElem.props.tilePosition.position.x && Math.abs(takenTilePosition.position.y - tilePositionElem.props.tilePosition.position.y) <= 1) {
+                return false;
+            }
+            if (takenTilePosition.position.y === tilePositionElem.props.tilePosition.position.y && Math.abs(takenTilePosition.position.x - tilePositionElem.props.tilePosition.position.x) <= 1) {
+                return false;
+            }
+
+            return true;
+        });
+        return tilePositions;
     }
     
     getGameData() {
@@ -118,8 +156,8 @@ class DominoGame extends Component {
             for (let i = 0; i < 6; i++)
                 this.drawFromDeck(true);
 
-            this.tilesContainer.current.style.width = "";
-            this.tilesContainer.current.style.height = "";
+            this.gameBoard.current.style.width = "";
+            this.gameBoard.current.style.height = "";
         });
     }
 
@@ -152,9 +190,8 @@ class DominoGame extends Component {
 
     hasNoValidMoves() {
         return !this.state.playerHand
-            .some(tile => Object.values(this.availablePositions)
-                .some(positions => positions
-                    .some(position => tile.props.numA === position.requiredNum || tile.props.numB === position.requiredNum)));
+            .some(tile => Object.values(this.state.availablePositions)
+                .some(tilePosition => tile.props.numA === tilePosition.props.tilePosition.requiredNum || tile.props.numB === tilePosition.props.tilePosition.requiredNum));
     }
 
     setGameOver() {
@@ -205,24 +242,13 @@ class DominoGame extends Component {
         });
     }
 
-    updateTilePositions(positions, key) {
-        this.availablePositions[key] = positions;
+    updateTilePositions(positions) {
+        let availablePositions = this.state.availablePositions;
+        availablePositions = availablePositions.concat(positions);
+        
+        this.setState({availablePositions: availablePositions});
         this.checkGameOver();
     }
-
-    placeSelectedTile(tilePosition, fatherPosition, onSuccess) {
-        if (this.canPlaceSelectedTile(tilePosition)) {
-            if (this.shouldSpinSelectedTile(tilePosition)) {
-                tilePosition.position.spin += 2;
-            }
-            this.removeTileFromHand(this.state.selectedTile);
-            this.addTileToBoard(this.state.selectedTile, tilePosition.position, fatherPosition);
-            this.setState({selectedTile: null});
-            this.checkGameOver();
-            onSuccess();
-        }
-    }
-
 
     shouldSpinSelectedTile(tilePosition) {
         return this.state.selectedTile.props.numB === tilePosition.requiredNum;
@@ -231,24 +257,24 @@ class DominoGame extends Component {
     expandBoard(position) {
         let tileHeight = 72;
         let tileWidth = 36;
-        let scrollLeft = this.tilesContainer.current.parentElement.scrollLeft;
-        let scrollTop = this.tilesContainer.current.parentElement.scrollTop;
+        let scrollLeft = this.gameBoard.current.parentElement.scrollLeft;
+        let scrollTop = this.gameBoard.current.parentElement.scrollTop;
 
-        if (!this.tilesContainer.current.style.width) {
-            this.tilesContainer.current.style.width = this.tilesContainer.current.clientWidth + "px";
+        if (!this.gameBoard.current.style.width) {
+            this.gameBoard.current.style.width = this.gameBoard.current.clientWidth + "px";
         }
-        if (!this.tilesContainer.current.style.height) {
-            this.tilesContainer.current.style.height = this.tilesContainer.current.clientHeight + "px";
+        if (!this.gameBoard.current.style.height) {
+            this.gameBoard.current.style.height = this.gameBoard.current.clientHeight + "px";
         }
 
         if (position.spin % 2 === 0) {
-            this.tilesContainer.current.style.width = `${this.tilesContainer.current.clientWidth + tileWidth}px`;
-            this.tilesContainer.current.style.height = `${this.tilesContainer.current.clientHeight + tileHeight * 2}px`;
+            this.gameBoard.current.style.width = `${this.gameBoard.current.clientWidth + tileWidth}px`;
+            this.gameBoard.current.style.height = `${this.gameBoard.current.clientHeight + tileHeight * 2}px`;
             scrollLeft += tileWidth / 3;
             scrollTop += tileHeight;
         } else {
-            this.tilesContainer.current.style.width = `${this.tilesContainer.current.clientHeight + tileHeight * 2}px`;
-            this.tilesContainer.current.style.height = `${this.tilesContainer.current.clientWidth + tileWidth}px`;
+            this.gameBoard.current.style.width = `${this.gameBoard.current.clientHeight + tileHeight * 2}px`;
+            this.gameBoard.current.style.height = `${this.gameBoard.current.clientWidth + tileWidth}px`;
 
             if(this.state.boardTiles.length == 2)
                 scrollTop += tileWidth * 8;
@@ -257,12 +283,12 @@ class DominoGame extends Component {
 
             scrollLeft += tileHeight * 1.5;
 
-            console.log(this.state.boardTiles.length);
         }
-        this.tilesContainer.current.parentElement.scrollTo(scrollLeft, scrollTop);
+        this.gameBoard.current.parentElement.scrollTo(scrollLeft, scrollTop);
     }
 
     canPlaceSelectedTile(tilePosition) {
+        console.log(this.hasNoValidMoves());
         if (!this.state.selectedTile) {
             return false;
         }
@@ -287,7 +313,6 @@ class DominoGame extends Component {
 
         this.setState({playerHand: currentPlayerHand});
     }
-
 
     drawFromDeck(gameStart) {
         let currentPlayerHand = this.state.playerHand;
@@ -463,10 +488,16 @@ class DominoGame extends Component {
                     </div>
                 </div>
                 <div className="row-container">
-                    <div className="game-board">
-                        <div className="tiles-container" ref={this.tilesContainer}>
+                    <div className="game-board-container" >
+                        <div className="game-board" ref={this.gameBoard}>
+                        <div className="tiles-container">
                             {this.state.boardTiles}
                         </div>
+                        <div className="tile-positions-container">
+                            {this.state.availablePositions}
+                        </div>
+                        </div>
+        
                     </div>
                     <DominoStatistics
                         gameTime={this.state.gameTime}
