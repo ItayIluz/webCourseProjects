@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import DominoTile from "../domino-tile/domino-tile.jsx";
+import TilePosition from "../tile-position/tile-position.jsx";
 import DominoStatistics from "../domino-statistics/domino-statistics.jsx";
 import "./domino-game.css";
 import GameOverPopup from "../game-over-popup/game-over-popup.jsx";
@@ -44,6 +45,10 @@ class DominoGame extends Component {
         this.removeTileFromHand = this.removeTileFromHand.bind(this);
         this.updateStatistics = this.updateStatistics.bind(this);
         this.updateGameTime = this.updateGameTime.bind(this);
+        this.updateGame = this.updateGame.bind(this);
+        this.createBoardTiles = this.createBoardTiles.bind(this);
+        this.createAvailablePositions = this.createAvailablePositions.bind(this);
+        this.createHand = this.createHand.bind(this);
         this.checkGameOver = this.checkGameOver.bind(this);
         this.openGameOverPopup = this.openGameOverPopup.bind(this);
         this.closeGameOverPopup = this.closeGameOverPopup.bind(this);
@@ -107,7 +112,7 @@ class DominoGame extends Component {
     }
     
     getGameData() {
-        return fetch('/games/gameData/' + this.state.gameTitle, {method: 'GET', credentials: 'include'})
+        return fetch('/games/dumdata', {method: 'GET', credentials: 'include'})
         .then((response) => {
             if (!response.ok){
                 throw response;
@@ -116,13 +121,14 @@ class DominoGame extends Component {
             return response.json();            
         })
         .then(gameData => {
-           this.setState({gameStatus: gameData.status});
+           this.setState({gameStatus: "In Session",
+        gameData: gameData},
+        this.updateGame);
         })
         .catch(err => {throw err});
     }
 
     startNewGame() {
-
         if (this.state.isGameOver)
             this.closeGameOverPopup();
 
@@ -152,9 +158,7 @@ class DominoGame extends Component {
             isGameOver: false,
             disableReplay: true,
         }, () => {
-            // Draw 6 tiles to the player's hand
-            for (let i = 0; i < 6; i++)
-                this.drawFromDeck(true);
+
 
             this.gameBoard.current.style.width = "";
             this.gameBoard.current.style.height = "";
@@ -218,7 +222,6 @@ class DominoGame extends Component {
 
     addTileToBoard(tile, position, fatherPosition) {
         let currentBoard = this.state.boardTiles;
-
         currentBoard.push(
             <DominoTile
                 key={`A${tile.props.numA}_B${tile.props.numB}`}
@@ -240,6 +243,52 @@ class DominoGame extends Component {
             this.updateStatistics(tile);
             this.addGameHistory();
         });
+    }
+
+    updateGame(){
+        let boardTiles = this.createBoardTiles();
+        let availablePositions = this.createAvailablePositions();
+        let hand = this.createHand();
+        this.setState({
+            boardTiles: boardTiles,
+            availablePositions: availablePositions,
+            playerHand: hand
+        })
+    }
+
+    createBoardTiles(){
+        return this.state.gameData.boardTiles.map(boardTileData => <DominoTile
+            key={`A${boardTileData.tile.numA}_B${boardTileData.tile.numB}`}
+            inHand={false}
+            ref={React.createRef()}
+            numA={boardTileData.tile.numA}
+            numB={boardTileData.tile.numB}
+            animation={{onBoard: true}}
+            position={boardTileData.position}
+        />)
+    }
+
+    createAvailablePositions(){
+        return this.state.gameData.availablePositions.map(availablePositionData =><TilePosition 
+            key={`${availablePositionData.requiredNum}_${availablePositionData.position.x}_${availablePositionData.position.y}_${availablePositionData.position.spin}`}
+            tilePosition={availablePositionData}
+        />)
+    }
+
+    createHand(){
+        return this.state.gameData.hand.map(handTileData => <DominoTile
+            key={`A${handTileData.numA}_B${handTileData.numB}`}
+            inHand={true}
+            ref={React.createRef()}
+            animation={{inHand: true}}
+            numA={handTileData.numA}
+            numB={handTileData.numB}
+            position={{
+                x: 0,
+                y: 0,
+                spin: 0
+            }}
+        />)
     }
 
     updateTilePositions(positions) {
@@ -288,7 +337,6 @@ class DominoGame extends Component {
     }
 
     canPlaceSelectedTile(tilePosition) {
-        console.log(this.hasNoValidMoves());
         if (!this.state.selectedTile) {
             return false;
         }
@@ -318,7 +366,7 @@ class DominoGame extends Component {
         let currentPlayerHand = this.state.playerHand;
         let randomNumber = Math.floor(Math.random() * this.state.dominoDeck.length); // returns a random integer from 0 to the number of tiles in the deck
         let tile = this.state.dominoDeck.splice(randomNumber, 1)[0];
-
+        console.log(JSON.stringify(tile));
         currentPlayerHand.push(
             <DominoTile
                 key={`A${tile.numA}_B${tile.numB}`}

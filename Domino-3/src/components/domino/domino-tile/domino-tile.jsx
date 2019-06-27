@@ -31,6 +31,7 @@ class DominoTile extends Component {
     }
 
     calculatePossibleAdjacentTiles(position, numA, numB, takenPosition) {
+        return [];
         if (this.props.inHand) {
             return [];
         }
@@ -43,7 +44,7 @@ class DominoTile extends Component {
         if (!!takenPosition) {
             tilePositions = this.filterPositions(tilePositions, takenPosition);
         }
-
+        console.log(JSON.stringify(tilePositions));
         this.props.updateTilePositions(tilePositions.map(tp => (
             <TilePosition key={`${tp.requiredNum}_${tp.position.x}_${tp.position.y}_${tp.position.spin}`}
                           tilePosition={tp}

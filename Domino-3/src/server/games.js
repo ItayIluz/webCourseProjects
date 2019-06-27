@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const auth = require('./auth');
+const gameManager = require('../gameManager');
 
 const gamesData = [];
 /*
@@ -17,12 +18,13 @@ const gamesData = [];
 const gamesManagement = express.Router();
 
 gamesManagement.use(bodyParser.text());
+gamesManagement.use(auth.userAuthentication);
 
 gamesManagement.route('/')
-	.get(auth.userAuthentication, (req, res) => {		
+	.get((req, res) => {		
 		res.json(gamesData);
 	})
-	.post(auth.userAuthentication, (req, res) => {		
+	.post((req, res) => {		
 		const requestData = JSON.parse(req.body);
         const userInfo = auth.getUserInfo(req.session.id);
         gamesData.push({
@@ -32,17 +34,22 @@ gamesManagement.route('/')
 			playersInGame: 0,
 			status: "Pending",
 			players: [],
+			playerHands: [],
+			deck: [],
+			boardTiles: [],
+			availablePositions: [],
+			currentPlayerIndex: 0
 		});        
         res.sendStatus(200);
 	});
 
-gamesManagement.get('/gameData/:searchTitle', auth.userAuthentication, (req, res) => {	
+gamesManagement.get('/gameData/:searchTitle', (req, res) => {	
 	const index = gamesData.findIndex(a => a.title === req.params.searchTitle);
 	if (index > -1)
 		res.json(gamesData[index]);
 });
 
-gamesManagement.post('/deleteGame', auth.userAuthentication, (req, res) => {	
+gamesManagement.post('/deleteGame', (req, res) => {	
 	const searchTitle = req.body;
 	const index = gamesData.findIndex(a => a.title === searchTitle);
 	if (index > -1)
@@ -51,7 +58,7 @@ gamesManagement.post('/deleteGame', auth.userAuthentication, (req, res) => {
 	res.sendStatus(200);
 });
 
-gamesManagement.post('/playerJoinGame', auth.userAuthentication, (req, res) => {	
+gamesManagement.post('/playerJoinGame', (req, res) => {	
 	const searchTitle = req.body;
 	const playerName = auth.getUserInfo(req.session.id).name;
 	const index = gamesData.findIndex(a => a.title === searchTitle);
@@ -59,11 +66,41 @@ gamesManagement.post('/playerJoinGame', auth.userAuthentication, (req, res) => {
 		gamesData[index].players.push(playerName);
 		gamesData[index].playersInGame++;
 
-		if(gamesData[index].numOfPlayers == gamesData[index].playersInGame)
+		if(gamesData[index].numOfPlayers == gamesData[index].playersInGame){
 			gamesData[index].status = "In Session";
+			gameManager.startGame(gamesData);
+		}
 	}
 
 	res.sendStatus(200);
 });
+
+
+//Game Management
+gamesManagement.get('/dumdata', (req, res) => {	
+	res.json({
+		hand: gameManager.getFirstHand(),
+		boardTiles: gameManager.getBoardTiles(),
+		availablePositions: gameManager.getAvailablePositions()
+	})	
+})
+
+gamesManagement.post('/makeMove/draw', (req, res) => {
+	const playerIndex = gameData.players.findIndex(req.playerName);
+	const gameData = gamesData[gamesData.findIndex(a => a.title === searchTitle)];
+
+	gameManager.drawFromDeck(playerIndex, gameData);
+
+	res.send(200);
+})
+
+gamesManagement.post('/makeMove/placeTile', (req, res) => {	
+	const playerIndex = gameData.players.findIndex(req.playerName);
+	const gameData = gamesData[gamesData.findIndex(a => a.title === searchTitle)];
+
+	gameManager.placeTile(playerIndex, gameData, req.body.tile, req.body.position);
+
+	res.send(200);
+})
 
 module.exports = gamesManagement;
