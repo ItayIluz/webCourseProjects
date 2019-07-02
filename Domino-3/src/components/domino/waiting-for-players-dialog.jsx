@@ -51,16 +51,16 @@ class WaitingForPlayersDialog extends Component {
               <u><b>
                 {!this.props.allPlayersAreIn ?
                   "Waiting for all players to join the game." : 
-                  "All players are in!"
+                  "Waiting for " + this.props.currentPlayerName + " to make his move"
                 }
               </b></u>
               <div style={{"marginTop": "10px"}}><b>{!this.props.allPlayersAreIn ?
                   "Please wait" : 
-                  "The game will start shortly"
+                  ""
                 }<span>{this.state.animationDots}</span></b></div>
             </div>
             <div className="dialog-button-panel">
-              <button className="my-button dialog-button" onClick={this.props.leaveGameFunction}>Leave Game</button>
+              {this.props.allPlayersAreIn ? null : <button className="my-button dialog-button" onClick={this.props.leaveGameFunction}>Leave Game</button>}
             </div>
           </div>
         </div>

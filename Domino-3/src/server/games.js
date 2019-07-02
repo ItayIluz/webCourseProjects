@@ -24,7 +24,8 @@ gamesManagement.route('/')
 	.get((req, res) => {		
 		res.json(gamesData);
 	})
-	.post((req, res) => {		
+	.post((req, res) => {
+		//todo game with same title!
 		const requestData = JSON.parse(req.body);
         const userInfo = auth.getUserInfo(req.session.id);
         gamesData.push({
@@ -45,9 +46,13 @@ gamesManagement.route('/')
 	});
 
 gamesManagement.get('/gameData/:searchTitle', (req, res) => {	
-	const index = gamesData.findIndex(a => a.title === req.params.searchTitle);
-	if (index > -1)
-		res.json(gamesData[index]);
+	const gameData = gamesData.find(a => a.title === req.params.searchTitle);
+	const playerIndex = gameData.players.findIndex(a => req.playerName === a);
+	gameData.isMyTurn = playerIndex === gameData.currentPlayerIndex;
+	gameData.currentPlayerName = gameData.players[gameData.currentPlayerIndex];
+	gameData.hand = gameData.playerHands[gameData.currentPlayerIndex];
+	if (gameData)
+		res.json(gameData);
 });
 
 gamesManagement.post('/deleteGame', (req, res) => {	
@@ -67,9 +72,9 @@ gamesManagement.post('/playerJoinGame', (req, res) => {
 		gamesData[index].players.push(playerName);
 		gamesData[index].playersInGame++;
 
-		if(gamesData[index].numOfPlayers == gamesData[index].playersInGame){
+		if(gamesData[index].numOfPlayers === gamesData[index].playersInGame){
 			gamesData[index].status = "In Session";
-			gameManager.startGame(gamesData);
+			gameManager.startGame(gamesData[index]);
 		}
 	}
 
@@ -78,13 +83,7 @@ gamesManagement.post('/playerJoinGame', (req, res) => {
 
 
 //Game Management
-gamesManagement.get('/dumdata', (req, res) => {	
-	res.json({
-		hand: gameManager.getFirstHand(),
-		boardTiles: gameManager.getBoardTiles(),
-		availablePositions: gameManager.getAvailablePositions()
-	})	
-})
+
 
 gamesManagement.post('/makeMove/draw', (req, res) => {
 	const playerIndex = gameData.players.findIndex(req.playerName);

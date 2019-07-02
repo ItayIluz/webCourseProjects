@@ -15,14 +15,6 @@ gameManager.drawFromDeck = function(playerIndex, gameData){
     nextPlayer(gameData);
 }
 
-gameManager.getFirstHand = function(playerIndex, gameData){
-    return [{"numA":1,"numB":0},{"numA":3,"numB":2},{"numA":6,"numB":2},{"numA":1,"numB":1},{"numA":6,"numB":5},{"numA":3,"numB":3}];
-}
-
-gameManager.getBoardTiles = function(gameData){
-    return [{tile:{"numA":1,"numB":0}, position:{"x":5,"y":4,"spin":0}} ,{tile:{"numA":3,"numB":2}, position:{"x":5,"y":0,"spin":1}},{tile:{"numA":6,"numB":2}, position:{"x":5,"y":8,"spin":0}}];
-}
-
 gameManager.placeTile = function(playerIndex, gameData, tile, tilePosition){
     const playerHand = gameData.playerHands[playerIndex];
     const tileIndex = findTileIndex(playerHand, tile);
