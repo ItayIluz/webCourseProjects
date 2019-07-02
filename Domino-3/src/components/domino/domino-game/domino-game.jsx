@@ -25,7 +25,6 @@ class DominoGame extends Component {
             gameHistoryRound: -1,
             isGameOver: false,
             disableReplay: true,
-            gameTitle: this.props.gameTitle,
             gameStatus: "Pending",
         };
 
@@ -34,29 +33,18 @@ class DominoGame extends Component {
         this.gameBoard = React.createRef();
 
         this.expandBoard = this.expandBoard.bind(this);
-        this.hasNoValidMoves = this.hasNoValidMoves.bind(this);
-        this.updateTilePositions = this.updateTilePositions.bind(this);
         this.placeSelectedTile = this.placeSelectedTile.bind(this);
-        this.shouldSpinSelectedTile = this.shouldSpinSelectedTile.bind(this);
-        this.canPlaceSelectedTile = this.canPlaceSelectedTile.bind(this);
-        this.addTileToBoard = this.addTileToBoard.bind(this);
-        this.drawFromDeck = this.drawFromDeck.bind(this);
         this.selectTile = this.selectTile.bind(this);
-        this.removeTileFromHand = this.removeTileFromHand.bind(this);
         this.updateStatistics = this.updateStatistics.bind(this);
         this.updateGameTime = this.updateGameTime.bind(this);
         this.updateGame = this.updateGame.bind(this);
         this.createBoardTiles = this.createBoardTiles.bind(this);
         this.createAvailablePositions = this.createAvailablePositions.bind(this);
         this.createHand = this.createHand.bind(this);
-        this.checkGameOver = this.checkGameOver.bind(this);
         this.openGameOverPopup = this.openGameOverPopup.bind(this);
         this.closeGameOverPopup = this.closeGameOverPopup.bind(this);
         this.setGameOver = this.setGameOver.bind(this);
-        this.addGameHistory = this.addGameHistory.bind(this);
         this.startNewGame = this.startNewGame.bind(this);
-        this.previousHistory = this.previousHistory.bind(this);
-        this.nextHistory = this.nextHistory.bind(this);
         this.enableReplay = this.enableReplay.bind(this);
         this.getGameData = this.getGameData.bind(this);
     }
@@ -73,28 +61,20 @@ class DominoGame extends Component {
         }
     }
 
-    placeSelectedTile(tilePosition, fatherPosition) {
-        if (!this.canPlaceSelectedTile(tilePosition)) {
+    placeSelectedTile(tilePosition) {
+        if(!this.state.selectedTile){
             return;
         }
 
-        if (this.shouldSpinSelectedTile(tilePosition)) {
-            tilePosition.position.spin += 2;
-        }
-        let tile = this.state.selectedTile;
-        this.removeTileFromHand(this.state.selectedTile);
-        this.addTileToBoard(this.state.selectedTile, tilePosition.position, fatherPosition);
-        let availablePositions = this.getFilteredBoardTilePositions(tilePosition);
-
-        this.setState({
-            availablePositions: availablePositions,
-            selectedTile: null,
-        }, () => {
-            this.expandBoard(tilePosition);
-            this.updateStatistics(tile);
-            this.addGameHistory();
-            this.checkGameOver();
-        })
+        fetch('/games/makeMove/placeTile', {
+            method: 'POST',
+            credentials: 'include',
+            body: JSON.stringify({
+                gameTitle: this.props.gameTitle,
+                tile: this.state.selectedTile.props,
+                position: tilePosition
+            })})
+        
     }
 
     getFilteredBoardTilePositions(takenTilePosition) {
@@ -122,7 +102,7 @@ class DominoGame extends Component {
             })
             .then(gameData => {
                 this.setState({
-                        gameStatus: "In Session",
+                        gameStatus: gameData.status,
                         gameData: gameData
                     },
                     this.updateGame);
@@ -196,12 +176,6 @@ class DominoGame extends Component {
         }
     }
 
-    hasNoValidMoves() {
-        return !this.state.playerHand
-            .some(tile => Object.values(this.state.availablePositions)
-                .some(tilePosition => tile.props.numA === tilePosition.props.tilePosition.requiredNum || tile.props.numB === tilePosition.props.tilePosition.requiredNum));
-    }
-
     setGameOver() {
         if (!this.state.isGameOver) {
             this.setState({isGameOver: true});
@@ -211,42 +185,17 @@ class DominoGame extends Component {
     }
 
     selectTile(clickedTile) {
-        if (this.state.boardTiles.length === 0) {
-            this.addTileToBoard(clickedTile, {x: 0, y: 0, spin: 0});
-            this.removeTileFromHand(clickedTile);
-        } else {
-            if (this.state.selectedTile !== null && this.state.selectedTile !== clickedTile) {
-                for (let i = 0; i < this.state.playerHand.length; i++)
-                    this.state.playerHand[i].ref.current.toggleSelect(false);
-            }
-
-            this.setState({selectedTile: clickedTile});
+        if (this.state.selectedTile !== null && this.state.selectedTile !== clickedTile) {
+            for (let i = 0; i < this.state.playerHand.length; i++)
+                this.state.playerHand[i].ref.current.toggleSelect(false);
         }
-    }
 
-    addTileToBoard(tile, position, fatherPosition) {
-        let currentBoard = this.state.boardTiles;
-        currentBoard.push(
-            <DominoTile
-                key={`A${tile.props.numA}_B${tile.props.numB}`}
-                inHand={false}
-                ref={React.createRef()}
-                numA={tile.props.numA}
-                numB={tile.props.numB}
-                animation={{onBoard: true}}
-                position={position}
-                updateTilePositions={this.updateTilePositions}
-                placeSelectedTile={this.placeSelectedTile}
-                fatherPosition={fatherPosition}
-                onClick={this.selectTile}
-            />
-        );
+        this.setState({selectedTile: clickedTile});
 
-        this.setState({boardTiles: currentBoard}, () => {
-            this.expandBoard(position);
-            this.updateStatistics(tile);
-            this.addGameHistory();
-        });
+        if (this.state.boardTiles.length === 0) {
+            this.placeSelectedTile();
+        }
+     
     }
 
     updateGame() {
@@ -293,21 +242,10 @@ class DominoGame extends Component {
                     y: 0,
                     spin: 0
                 }}
+                handleClick={this.selectTile}
             />)
         }
         return [];
-    }
-
-    updateTilePositions(positions) {
-        let availablePositions = this.state.availablePositions;
-        availablePositions = availablePositions.concat(positions);
-
-        this.setState({availablePositions: availablePositions});
-        this.checkGameOver();
-    }
-
-    shouldSpinSelectedTile(tilePosition) {
-        return this.state.selectedTile.props.numB === tilePosition.requiredNum;
     }
 
     expandBoard(position) {
@@ -343,161 +281,6 @@ class DominoGame extends Component {
         this.gameBoard.current.parentElement.scrollTo(scrollLeft, scrollTop);
     }
 
-    canPlaceSelectedTile(tilePosition) {
-        if (!this.state.selectedTile) {
-            return false;
-        }
-        if (!(this.state.selectedTile.props.numA === tilePosition.requiredNum || this.state.selectedTile.props.numB === tilePosition.requiredNum)) {
-            return false;
-        }
-        if (tilePosition.doubleRequired && this.state.selectedTile.props.numA !== this.state.selectedTile.props.numB) {
-            return false;
-        }
-
-        return true;
-
-    }
-
-    removeTileFromHand(tile) {
-        let currentPlayerHand = this.state.playerHand;
-        let index = currentPlayerHand.findIndex(a => a.props.numA === tile.props.numA && a.props.numB === tile.props.numB);
-
-        if (index > -1) {
-            currentPlayerHand.splice(index, 1);
-        }
-
-        this.setState({playerHand: currentPlayerHand});
-    }
-
-    drawFromDeck(gameStart) {
-        let currentPlayerHand = this.state.playerHand;
-        let randomNumber = Math.floor(Math.random() * this.state.dominoDeck.length); // returns a random integer from 0 to the number of tiles in the deck
-        let tile = this.state.dominoDeck.splice(randomNumber, 1)[0];
-        console.log(JSON.stringify(tile));
-        currentPlayerHand.push(
-            <DominoTile
-                key={`A${tile.numA}_B${tile.numB}`}
-                inHand={true}
-                ref={React.createRef()}
-                animation={{inHand: true}}
-                numA={tile.numA}
-                numB={tile.numB}
-                position={{
-                    x: 0,
-                    y: 0,
-                    spin: 0
-                }}
-                onClick={this.selectTile}
-                addTilePositions={this.updateTilePositions}
-                placeSelectedTile={this.placeSelectedTile}
-            />
-        );
-
-        if (!gameStart) {
-            this.setState({
-                playerHand: currentPlayerHand,
-                numOfDraws: this.state.numOfDraws + 1
-            }, () => this.addGameHistory());
-        } else {
-            if (this.state.playerHand.length === 6)
-                this.addGameHistory();
-        }
-    }
-
-    addGameHistory() {
-        let updatedGameHistory = this.state.gameHistory;
-        let playerHandCopy = [];
-        let boardTilesCopy = [];
-        let dominoDeckCopy = JSON.parse(JSON.stringify(this.state.dominoDeck));
-
-        for (let i = 0; i < this.state.playerHand.length; i++)
-            playerHandCopy.push(React.cloneElement(this.state.playerHand[i]));
-
-        for (let i = 0; i < this.state.boardTiles.length; i++)
-            boardTilesCopy.push(React.cloneElement(this.state.boardTiles[i]));
-
-        updatedGameHistory.push({
-            playerHand: playerHandCopy,
-            boardTiles: boardTilesCopy,
-            dominoDeck: dominoDeckCopy,
-            score: this.state.score,
-            gameTime: this.state.gameTime,
-            totalTurns: this.state.totalTurns,
-            numOfDraws: this.state.numOfDraws,
-            averageTurnTime: this.state.averageTurnTime,
-        });
-        this.setState({gameHistory: updatedGameHistory, gameHistoryRound: this.state.gameHistoryRound + 1});
-    }
-
-    previousHistory(isUndo) {
-        let currentGameHistory = this.state.gameHistory;
-        let round = this.state.gameHistoryRound - 1;
-
-        if (round >= 0) {
-
-            let undoChangedBoard = false;
-            let removedTile;
-            let newPlayHand = [];
-            let newBoardTiles = [];
-            let newDominoDeck = [];
-
-            if (isUndo) {
-                undoChangedBoard = currentGameHistory[round + 1].numOfDraws === currentGameHistory[round].numOfDraws;
-                removedTile = currentGameHistory[round + 1].boardTiles[currentGameHistory[round + 1].boardTiles.length - 1];
-                currentGameHistory.pop();
-
-                for (let i = 0; i < currentGameHistory[round].playerHand.length; i++)
-                    newPlayHand.push(React.cloneElement(currentGameHistory[round].playerHand[i]));
-
-                for (let i = 0; i < currentGameHistory[round].boardTiles.length; i++)
-                    newBoardTiles.push(React.cloneElement(currentGameHistory[round].boardTiles[i]));
-
-                newDominoDeck = JSON.parse(JSON.stringify(currentGameHistory[round].dominoDeck));
-
-            } else {
-                newPlayHand = currentGameHistory[round].playerHand;
-                newBoardTiles = currentGameHistory[round].boardTiles;
-                newDominoDeck = currentGameHistory[round].dominoDeck;
-            }
-
-            this.setState({
-                boardTiles: newBoardTiles,
-                playerHand: newPlayHand,
-                dominoDeck: newDominoDeck,
-                score: currentGameHistory[round].score,
-                gameTime: currentGameHistory[round].gameTime,
-                totalTurns: currentGameHistory[round].totalTurns,
-                numOfDraws: currentGameHistory[round].numOfDraws,
-                averageTurnTime: currentGameHistory[round].averageTurnTime,
-                gameHistory: currentGameHistory,
-                gameHistoryRound: round,
-            }, () => {
-                if (undoChangedBoard) {
-                    let fatherTile = newBoardTiles.find(tile => tile.props.position.x === removedTile.props.fatherPosition.x && tile.props.position.y === removedTile.props.fatherPosition.y && tile.props.position.spin === removedTile.props.fatherPosition.spin);
-                    if (fatherTile) {
-                        fatherTile.ref.current.addLostPositionsToPossibleAdjacentTiles(removedTile.props.position);
-                    }
-                }
-            });
-        }
-    }
-
-    nextHistory() {
-        let round = this.state.gameHistoryRound + 1;
-        if (round < this.state.gameHistory.length) {
-            this.setState({
-                boardTiles: this.state.gameHistory[round].boardTiles,
-                playerHand: this.state.gameHistory[round].playerHand,
-                dominoDeck: this.state.gameHistory[round].dominoDeck,
-                score: this.state.gameHistory[round].score,
-                gameTime: this.state.gameHistory[round].gameTime,
-                totalTurns: this.state.gameHistory[round].totalTurns,
-                numOfDraws: this.state.gameHistory[round].numOfDraws,
-                averageTurnTime: this.state.gameHistory[round].averageTurnTime,
-                gameHistoryRound: round,
-            })
-        }
-    }
 
     enableReplay() {
         this.setState({disableReplay: false}, this.closeGameOverPopup);
@@ -568,7 +351,7 @@ class DominoGame extends Component {
                         enableReplayFunction={this.enableReplay}
                         closeFunction={this.closeGameOverPopup}
                     />
-                    <div hidden={this.state.gameStatus !== "Pending"} className="dialog-overlay">
+                    <div hidden={this.state.gameStatus !== "Pending" && this.state.gameData.isMyTurn} className="dialog-overlay">
                         <WaitingForPlayersDialog
                             //leaveGameFunction={this.handleLeaveGame}
                             allPlayersAreIn={this.state.gameStatus !== "Pending"}

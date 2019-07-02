@@ -5,7 +5,7 @@ function userAuthentication(req, res, next) {
 		res.sendStatus(401);		
 	} else {		
 		req.userList = userList;
-		req.userName = getUserInfo(req.session.id).name;
+		req.playerName = getUserInfo(req.session.id).name;
 		next();
 	}
 }

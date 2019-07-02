@@ -50,13 +50,13 @@ gamesManagement.get('/gameData/:searchTitle', (req, res) => {
 	const playerIndex = gameData.players.findIndex(a => req.playerName === a);
 	gameData.isMyTurn = playerIndex === gameData.currentPlayerIndex;
 	gameData.currentPlayerName = gameData.players[gameData.currentPlayerIndex];
-	gameData.hand = gameData.playerHands[gameData.currentPlayerIndex];
+	gameData.hand = gameData.playerHands[playerIndex];
 	if (gameData)
 		res.json(gameData);
 });
 
 gamesManagement.post('/deleteGame', (req, res) => {	
-	const searchTitle = req.body;
+	const searchTitle = req.body.gameTitle;
 	const index = gamesData.findIndex(a => a.title === searchTitle);
 	if (index > -1)
 		gamesData.splice(index, 1);
@@ -87,7 +87,7 @@ gamesManagement.post('/playerJoinGame', (req, res) => {
 
 gamesManagement.post('/makeMove/draw', (req, res) => {
 	const playerIndex = gameData.players.findIndex(req.playerName);
-	const gameData = gamesData[gamesData.findIndex(a => a.title === searchTitle)];
+	const gameData = gamesData[gamesData.findIndex(a => a.title === req.body.gameTitle)];
 
 	gameManager.drawFromDeck(playerIndex, gameData);
 
@@ -95,10 +95,11 @@ gamesManagement.post('/makeMove/draw', (req, res) => {
 })
 
 gamesManagement.post('/makeMove/placeTile', (req, res) => {	
+	const body = JSON.parse(req.body);
+	const gameData = gamesData[gamesData.findIndex(a => a.title === body.gameTitle)];
 	const playerIndex = gameData.players.findIndex(req.playerName);
-	const gameData = gamesData[gamesData.findIndex(a => a.title === searchTitle)];
 
-	gameManager.placeTile(playerIndex, gameData, req.body.tile, req.body.position);
+	gameManager.placeTile(playerIndex, gameData, body.tile, body.position);
 
 	res.send(200);
 })
