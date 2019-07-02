@@ -34,6 +34,7 @@ class DominoGame extends Component {
 
         this.expandBoard = this.expandBoard.bind(this);
         this.placeSelectedTile = this.placeSelectedTile.bind(this);
+        this.drawFromDeck = this.drawFromDeck.bind(this);
         this.selectTile = this.selectTile.bind(this);
         this.updateStatistics = this.updateStatistics.bind(this);
         this.updateGameTime = this.updateGameTime.bind(this);
@@ -67,6 +68,18 @@ class DominoGame extends Component {
         }
 
         fetch('/games/makeMove/placeTile', {
+            method: 'POST',
+            credentials: 'include',
+            body: JSON.stringify({
+                gameTitle: this.props.gameTitle,
+                tile: this.state.selectedTile.props,
+                position: tilePosition
+            })})
+        
+    }
+
+    drawFromDeck() {
+        fetch('/games/makeMove/draw', {
             method: 'POST',
             credentials: 'include',
             body: JSON.stringify({
@@ -190,11 +203,13 @@ class DominoGame extends Component {
                 this.state.playerHand[i].ref.current.toggleSelect(false);
         }
 
-        this.setState({selectedTile: clickedTile});
+        this.setState({selectedTile: clickedTile}, ()=>{
+            if (this.state.boardTiles.length === 0) {
+                this.placeSelectedTile();
+            }
+        });
 
-        if (this.state.boardTiles.length === 0) {
-            this.placeSelectedTile();
-        }
+        
      
     }
 
@@ -303,7 +318,7 @@ class DominoGame extends Component {
                         {this.state.hand}
                     </div>
                     <div>
-                        <button className="my-button" onClick={() => this.drawFromDeck(false)}
+                        <button className="my-button" onClick={() => this.drawFromDeck()}
                                 disabled={this.state.dominoDeck.length === 0 || this.state.isGameOver}>
                             {this.state.dominoDeck.length !== 0 ? "Draw From Deck" : "No more tiles"}
                         </button>
