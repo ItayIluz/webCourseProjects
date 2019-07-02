@@ -30,8 +30,9 @@ gameManager.placeTile = function(playerIndex, gameData, tile, tilePosition){
     if(tileIndex !== -1 && canPlaceTile(tile, tilePosition)){
         gameData.playerHands[playerIndex].splice(tileIndex, 1);
         addTileToBoard(gameData, tile, tilePosition);
-        nextPlayer(gameData);
         addNewAvailablePositions(gameData, tile, tilePosition);
+        addTileToScore(gameData, tile);
+        nextPlayer(gameData);
     }
 
     return;
@@ -40,7 +41,6 @@ gameManager.placeTile = function(playerIndex, gameData, tile, tilePosition){
 gameManager.getAvailablePositions = function(gameData){
     return [{"requiredNum":5,"doubleRequired":false,"position":{"x":0,"y":4,"spin":0}},{"requiredNum":6,"doubleRequired":false,"position":{"x":0,"y":-4,"spin":2}},{"requiredNum":5,"doubleRequired":true,"position":{"x":0,"y":3,"spin":1}},{"requiredNum":6,"doubleRequired":true,"position":{"x":0,"y":-3,"spin":1}}];
 }
-
 
 function generateDeck() {
     let newDeck = [];
@@ -52,6 +52,7 @@ function generateDeck() {
 
     return newDeck;
 }
+
 function makeInitialDraw(deck) {
     let startHand = [];
     for(let i = 0; i < START_HAND_SIZE; i++){
@@ -67,6 +68,10 @@ function drawFromDeck(deck) {
     return deck.splice(randTileIndex, 1)[0];
 }
 
+function addTileToScore(gameData, tile){
+    gameData.playerScores[gameData.currentPlayerIndex] += tile.numA + tile.numB;
+}
+
 function findTileIndex(tiles, tile){
     let index = -1;
     for(let i = 0; i < tiles.length; i++) {
@@ -80,8 +85,13 @@ function findTileIndex(tiles, tile){
 }
 
 function nextPlayer(gameData){
-    gameData.currentPlayerIndex = (gameData.currentPlayerIndex + 1) % gameData.numOfPlayers;
-    // todo
+    for(let i = 0; i < gameData.numOfPlayers; i++){
+        gameData.currentPlayerIndex = (gameData.currentPlayerIndex + 1) % gameData.numOfPlayers;
+        if(!currentPlayerHasAvailableMoves(gameData)){
+            return;
+        }
+    }
+    endGame(gameData);
 }
 
 function canPlaceTile(tile, tilePosition){
@@ -119,6 +129,23 @@ function addNewAvailablePositions(gameData, tile, tilePosition) {
     }
 
     gameData.availablePositions = gameData.availablePositions.concat(newAvailablePositions);
+}
+
+function endGame(gameData){
+    gameData.isGameOver = true;
+}
+
+function currentPlayerHasAvailableMoves(gameData){
+    if(gameData.deck.length !== 0) {
+        return true;
+    }
+    if (gameData.playerHands[gameData.currentPlayerIndex].length === 0) {
+        return false;
+    } else if (!gameData.playerHands[gameData.currentPlayerIndex]
+        .some(tile => Object.values(gameData.availablePositions)
+            .some(tilePosition => tile.numA === tilePosition.requiredNum || tile.numB === tilePosition.requiredNum))) {
+        return false;
+    }
 }
 
 function getAdjacentOfDouble(position, numA, numB) {

@@ -35,6 +35,7 @@ gamesManagement.route('/')
 			status: "Pending",
 			players: [],
 			playerHands: [],
+			playerScores: [],
 			deck: [],
 			boardTiles: [],
 			availablePositions: [],

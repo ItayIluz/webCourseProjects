@@ -252,7 +252,7 @@ class DominoGame extends Component {
         this.setState({
             boardTiles: boardTiles,
             availablePositions: availablePositions,
-            playerHand: hand
+            hand: hand
         })
     }
 
