@@ -26,7 +26,7 @@ class DominoTile extends Component {
     
     handleClick() {
         if(this.state.inHand){
-            this.props.handleClick(this);
+            this.toggleSelect(this.props.selectTile(this));
         }
     }
 

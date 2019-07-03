@@ -16,22 +16,20 @@ gameManager.drawFromDeck = function(playerIndex, gameData){
 }
 
 gameManager.placeTile = function(playerIndex, gameData, tile, tilePosition){
+    tilePosition = tilePosition || {position: {x: 0, y: 0, spin: 0}};
     const playerHand = gameData.playerHands[playerIndex];
     const tileIndex = findTileIndex(playerHand, tile);
 
     if(tileIndex !== -1 && canPlaceTile(tile, tilePosition)){
         gameData.playerHands[playerIndex].splice(tileIndex, 1);
         addTileToBoard(gameData, tile, tilePosition);
+        gameData.availablePositions = filterAdjacentPositions(gameData.availablePositions, tilePosition.position);
         addNewAvailablePositions(gameData, tile, tilePosition);
         addTileToScore(gameData, tile);
         nextPlayer(gameData);
     }
 
     return;
-}
-
-gameManager.getAvailablePositions = function(gameData){
-    return [{"requiredNum":5,"doubleRequired":false,"position":{"x":0,"y":4,"spin":0}},{"requiredNum":6,"doubleRequired":false,"position":{"x":0,"y":-4,"spin":2}},{"requiredNum":5,"doubleRequired":true,"position":{"x":0,"y":3,"spin":1}},{"requiredNum":6,"doubleRequired":true,"position":{"x":0,"y":-3,"spin":1}}];
 }
 
 function generateDeck() {
@@ -79,7 +77,7 @@ function findTileIndex(tiles, tile){
 function nextPlayer(gameData){
     for(let i = 0; i < gameData.numOfPlayers; i++){
         gameData.currentPlayerIndex = (gameData.currentPlayerIndex + 1) % gameData.numOfPlayers;
-        if(!currentPlayerHasAvailableMoves(gameData)){
+        if(currentPlayerHasAvailableMoves(gameData)){
             return;
         }
     }
@@ -87,6 +85,9 @@ function nextPlayer(gameData){
 }
 
 function canPlaceTile(tile, tilePosition){
+    if(!tilePosition.requiredNum){
+        return true;
+    }
     if (!(tile.numA === tilePosition.requiredNum || tile.numB === tilePosition.requiredNum)) {
         return false;
     }
@@ -103,21 +104,19 @@ function addTileToBoard(gameData, tile, tilePosition){
             tile:tile,
             position: tilePosition.position
         });
-
-    addNewAvailablePositions(gameData, tile, tilePosition)
 }
 
 function addNewAvailablePositions(gameData, tile, tilePosition) {
-    let newAvailablePositions = getRegularAdjacent(position, tile.numA, tile.numB);
+    let newAvailablePositions = getRegularAdjacent(tilePosition.position, tile.numA, tile.numB);
 
     if (tile.numA === tile.numB) {
-        newAvailablePositions = newAvailablePositions.concat(getAdjacentOfDouble(position, numA, numB));
+        newAvailablePositions = newAvailablePositions.concat(getAdjacentOfDouble(tilePosition.position, tile.numA, tile.numB));
     } else {
-        newAvailablePositions = newAvailablePositions.concat(getDoubleAdjacent(position, numA, numB));
+        newAvailablePositions = newAvailablePositions.concat(getDoubleAdjacent(tilePosition.position, tile.numA, tile.numB));
     }
 
     if (!!tilePosition.fatherPosition) {
-        newAvailablePositions = filterPositions(newAvailablePositions, tilePosition.fatherPosition);
+        newAvailablePositions = filterAdjacentPositions(newAvailablePositions, tilePosition.fatherPosition);
     }
 
     gameData.availablePositions = gameData.availablePositions.concat(newAvailablePositions);
@@ -147,6 +146,7 @@ function getAdjacentOfDouble(position, numA, numB) {
             return {
                 requiredNum: numA,
                 doubleRequired: false,
+                fatherPosition: position,
                 position: {
                     x: position.x + i * 3,
                     y: position.y,
@@ -157,6 +157,7 @@ function getAdjacentOfDouble(position, numA, numB) {
             return {
                 requiredNum: numA,
                 doubleRequired: false,
+                fatherPosition: position,
                 position: {
                     x: position.x,
                     y: position.y + i * 3,
@@ -180,6 +181,7 @@ function getDoubleAdjacent(position, numA, numB) {
             return {
                 requiredNum: num,
                 doubleRequired: true,
+                fatherPosition: position,
                 position: {
                     x: position.x,
                     y: position.y + i * 3,
@@ -196,6 +198,7 @@ function getDoubleAdjacent(position, numA, numB) {
             return {
                 requiredNum: num,
                 doubleRequired: true,
+                fatherPosition: position,
                 position: {
                     x: position.x + i * 3,
                     y: position.y,
@@ -219,6 +222,7 @@ function getRegularAdjacent(position, numA, numB) {
             return {
                 requiredNum: num,
                 doubleRequired: false,
+                fatherPosition: position,
                 position: {
                     x: position.x,
                     y: position.y + i * 4,
@@ -235,6 +239,7 @@ function getRegularAdjacent(position, numA, numB) {
             return {
                 requiredNum: num,
                 doubleRequired: false,
+                fatherPosition: position,
                 position: {
                     x: position.x + i * 4,
                     y: position.y,
@@ -249,16 +254,26 @@ function isVertical(position) {
     return position.spin % 2 === 0;
 }
 
-function filterPositions(tilePositions, takenPosition) {
+function filterPosition(tilePositions, takenPosition) {
+    tilePositions = tilePositions.filter(tilePosition => takenPosition.position.x !== tilePosition.position.x || takenPosition.position.y !== tilePosition.position.y);
+    return tilePositions;
+}
+
+function filterAdjacentPositions(tilePositions, takenPosition) {
+    console.log(`for: ${JSON.stringify(takenPosition)}`);
     tilePositions = tilePositions.filter(tilePosition => {
         if (takenPosition.x === tilePosition.position.x && Math.abs(takenPosition.y - tilePosition.position.y) <= 1) {
+            console.log(`removed: ${JSON.stringify(tilePosition.position)}`);
             return false;
         }
         if (takenPosition.y === tilePosition.position.y && Math.abs(takenPosition.x - tilePosition.position.x) <= 1) {
+            console.log(`removed: ${JSON.stringify(tilePosition.position)}`);
             return false;
         }
+        console.log(`allowed: ${JSON.stringify(tilePosition.position)}`);
         return true;
     });
+
     return tilePositions;
 }
 

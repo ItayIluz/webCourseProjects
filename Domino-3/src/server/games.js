@@ -86,8 +86,9 @@ gamesManagement.post('/playerJoinGame', (req, res) => {
 
 
 gamesManagement.post('/makeMove/draw', (req, res) => {
-	const playerIndex = gameData.players.findIndex(req.playerName);
-	const gameData = gamesData[gamesData.findIndex(a => a.title === req.body.gameTitle)];
+	const body = JSON.parse(req.body);
+	const gameData = gamesData[gamesData.findIndex(a => a.title === body.gameTitle)];
+	const playerIndex = gameData.players.findIndex(name => req.playerName === name);
 
 	gameManager.drawFromDeck(playerIndex, gameData);
 
@@ -97,7 +98,7 @@ gamesManagement.post('/makeMove/draw', (req, res) => {
 gamesManagement.post('/makeMove/placeTile', (req, res) => {	
 	const body = JSON.parse(req.body);
 	const gameData = gamesData[gamesData.findIndex(a => a.title === body.gameTitle)];
-	const playerIndex = gameData.players.findIndex(req.playerName);
+	const playerIndex = gameData.players.findIndex(name => req.playerName === name);
 
 	gameManager.placeTile(playerIndex, gameData, body.tile, body.position);
 

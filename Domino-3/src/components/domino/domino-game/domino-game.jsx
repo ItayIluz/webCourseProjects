@@ -84,8 +84,6 @@ class DominoGame extends Component {
             credentials: 'include',
             body: JSON.stringify({
                 gameTitle: this.props.gameTitle,
-                tile: this.state.selectedTile.props,
-                position: tilePosition
             })})
         
     }
@@ -198,7 +196,12 @@ class DominoGame extends Component {
     }
 
     selectTile(clickedTile) {
-        if (this.state.selectedTile !== null && this.state.selectedTile !== clickedTile) {
+        if(this.state.selectedTile === clickedTile){
+            this.setState({selectedTile: null})
+            return false;
+        }
+
+        if (this.state.selectedTile !== null) {
             for (let i = 0; i < this.state.playerHand.length; i++)
                 this.state.playerHand[i].ref.current.toggleSelect(false);
         }
@@ -208,9 +211,10 @@ class DominoGame extends Component {
                 this.placeSelectedTile();
             }
         });
-
-        
-     
+        if (this.state.boardTiles.length === 0){
+            return false;
+        }
+        return true;
     }
 
     updateGame() {
@@ -240,6 +244,7 @@ class DominoGame extends Component {
         return this.state.gameData.availablePositions.map(availablePositionData => <TilePosition
             key={`${availablePositionData.requiredNum}_${availablePositionData.position.x}_${availablePositionData.position.y}_${availablePositionData.position.spin}`}
             tilePosition={availablePositionData}
+            placeSelectedTile={this.placeSelectedTile}
         />)
     }
 
@@ -257,7 +262,7 @@ class DominoGame extends Component {
                     y: 0,
                     spin: 0
                 }}
-                handleClick={this.selectTile}
+                selectTile={this.selectTile}
             />)
         }
         return [];
