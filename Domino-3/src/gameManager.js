@@ -1,10 +1,29 @@
 const gameManager = {};
 const START_HAND_SIZE = 6;
 
+function Game(title, numOfPlayers, createdBy){
+    this.title = title;
+    this.numOfPlayers = numOfPlayers;
+    this.createdBy = createdBy;
+    this.playersInGame = 0;
+    this.status = "Pending";
+    this.players = [];
+    this.playerHands = [];
+    this.playerScores = [];
+    this.numOfTurns = 0;
+    this.deck = [];
+    this.boardTiles = [];
+    this.availablePositions = [];
+    this.currentPlayerIndex = 0;
+
+    return this;
+}
+
 gameManager.startGame = function(gameData){
     gameData.deck = generateDeck();
     for(let i = 0; i < gameData.numOfPlayers; i++){
         gameData.playerHands.push(makeInitialDraw(gameData.deck));
+        gameData.playerScores.push(0);
     }
 
     return;
@@ -79,6 +98,7 @@ function findTileIndex(tiles, tile){
 }
 
 function nextPlayer(gameData){
+    gameData.numOfTurns++;
     for(let i = 0; i < gameData.numOfPlayers; i++){
         gameData.currentPlayerIndex = (gameData.currentPlayerIndex + 1) % gameData.numOfPlayers;
         if(currentPlayerHasAvailableMoves(gameData)){
@@ -262,11 +282,6 @@ function isVertical(position) {
     return position.spin % 2 === 0;
 }
 
-function filterPosition(tilePositions, takenPosition) {
-    tilePositions = tilePositions.filter(tilePosition => takenPosition.position.x !== tilePosition.position.x || takenPosition.position.y !== tilePosition.position.y);
-    return tilePositions;
-}
-
 function filterAdjacentPositions(tilePositions, takenPosition) {
     console.log(`for: ${JSON.stringify(takenPosition)}`);
     tilePositions = tilePositions.filter(tilePosition => {
@@ -285,4 +300,4 @@ function filterAdjacentPositions(tilePositions, takenPosition) {
     return tilePositions;
 }
 
-module.exports = gameManager;
+module.exports = {gameManager, Game};

@@ -112,6 +112,9 @@ class DominoGame extends Component {
                 return response.json();
             })
             .then(gameData => {
+                if(gameData.status !== 'Pending' && !this.gameTimeInterval){
+                    this.gameTimeInterval = setInterval(this.updateGameTime, 1000);
+                }
                 this.setState({
                         gameStatus: gameData.status,
                         gameData: gameData
@@ -134,8 +137,6 @@ class DominoGame extends Component {
                 newDominoDeck.push({numA: i, numB: j});
             }
         }
-
-        this.gameTimeInterval = setInterval(this.updateGameTime, 1000);
 
         this.setState({
             dominoDeck: newDominoDeck,
@@ -166,9 +167,9 @@ class DominoGame extends Component {
         });
     }
 
-    updateStatistics(addedTile) {
-        let newScore = this.state.score + addedTile.props.numA + addedTile.props.numB;
-        let newTotalTurns = this.state.totalTurns + 1;
+    updateStatistics() {
+        let newScore = this.state.gameData.score;
+        let newTotalTurns = this.state.gameData.numOfTurns;
         this.setState({
             score: newScore,
             totalTurns: newTotalTurns,
@@ -221,6 +222,7 @@ class DominoGame extends Component {
         let boardTiles = this.createBoardTiles();
         let availablePositions = this.createAvailablePositions();
         let hand = this.createHand();
+        this.updateStatistics();
         this.setState({
             boardTiles: boardTiles,
             availablePositions: availablePositions,

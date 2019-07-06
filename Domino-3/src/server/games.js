@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const auth = require('./auth');
-const gameManager = require('../gameManager');
+const {gameManager, Game} = require('../gameManager');
 
 const gamesData = [];
 /*
@@ -27,21 +27,9 @@ gamesManagement.route('/')
 	.post((req, res) => {
 		//todo game with same title!
 		const requestData = JSON.parse(req.body);
-        const userInfo = auth.getUserInfo(req.session.id);
-        gamesData.push({
-			title: requestData.title,
-			numOfPlayers: requestData.numOfPlayers,
-			createdBy: userInfo.name, 
-			playersInGame: 0,
-			status: "Pending",
-			players: [],
-			playerHands: [],
-			playerScores: [],
-			deck: [],
-			boardTiles: [],
-			availablePositions: [],
-			currentPlayerIndex: 0
-		});        
+		const userInfo = auth.getUserInfo(req.session.id);
+		new Game(requestData.title, requestData.numOfPlayers, userInfo.name)
+        gamesData.push(new Game(requestData.title, requestData.numOfPlayers, userInfo.name));        
         res.sendStatus(200);
 	});
 
@@ -51,6 +39,7 @@ gamesManagement.get('/gameData/:searchTitle', (req, res) => {
 	gameData.isMyTurn = playerIndex === gameData.currentPlayerIndex;
 	gameData.currentPlayerName = gameData.players[gameData.currentPlayerIndex];
 	gameData.hand = gameData.playerHands[playerIndex];
+	gameData.score = gameData.playerScores[playerIndex];
 	if (gameData)
 		res.json(gameData);
 });
