@@ -203,7 +203,7 @@ class DominoGame extends Component {
 
         if (this.state.selectedTile !== null) {
             for (let i = 0; i < this.state.playerHand.length; i++)
-                this.state.playerHand[i].ref.current.toggleSelect(false);
+                this.state.playerHand[i].ref.current.setIsSelected(false);
         }
 
         this.setState({selectedTile: clickedTile}, ()=>{
@@ -224,7 +224,7 @@ class DominoGame extends Component {
         this.setState({
             boardTiles: boardTiles,
             availablePositions: availablePositions,
-            hand: hand
+            playerHand: hand
         })
     }
 
@@ -320,29 +320,16 @@ class DominoGame extends Component {
                 <div className="view-header">
                     <div className="player-hand-title"><span>Hand: </span></div>
                     <div className="player-hand">
-                        {this.state.hand}
+                        {this.state.playerHand}
                     </div>
                     <div>
                         <button className="my-button" onClick={() => this.drawFromDeck()}
                                 disabled={this.state.dominoDeck.length === 0 || this.state.isGameOver}>
                             {this.state.dominoDeck.length !== 0 ? "Draw From Deck" : "No more tiles"}
                         </button>
-                        <button className="my-button" onClick={() => this.previousHistory(true)}
-                                hidden={this.state.isGameOver} disabled={this.state.gameHistoryRound === 0}>Undo Move
-                        </button>
                         <button className="my-button" onClick={this.startNewGame}
                                 hidden={!this.state.isGameOver || this.state.showGameOverPopup}>Start a
                             New Game
-                        </button>
-                        <button className="my-button" onClick={() => this.previousHistory(false)}
-                                disabled={this.state.gameHistoryRound === 0}
-                                hidden={this.state.disableReplay}>
-                            Previous
-                        </button>
-                        <button className="my-button" onClick={this.nextHistory}
-                                disabled={this.state.gameHistoryRound === this.state.gameHistory.length - 1}
-                                hidden={this.state.disableReplay}>
-                            Next
                         </button>
                     </div>
                 </div>

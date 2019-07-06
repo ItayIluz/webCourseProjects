@@ -20,6 +20,10 @@ gameManager.placeTile = function(playerIndex, gameData, tile, tilePosition){
     const playerHand = gameData.playerHands[playerIndex];
     const tileIndex = findTileIndex(playerHand, tile);
 
+    if(shouldSpinTile(tile, tilePosition)){
+        tilePosition.position.spin += 2;
+    }
+
     if(tileIndex !== -1 && canPlaceTile(tile, tilePosition)){
         gameData.playerHands[playerIndex].splice(tileIndex, 1);
         addTileToBoard(gameData, tile, tilePosition);
@@ -104,6 +108,10 @@ function addTileToBoard(gameData, tile, tilePosition){
             tile:tile,
             position: tilePosition.position
         });
+}
+
+function shouldSpinTile(tile, tilePosition) {
+    return tile.numB === tilePosition.requiredNum;
 }
 
 function addNewAvailablePositions(gameData, tile, tilePosition) {

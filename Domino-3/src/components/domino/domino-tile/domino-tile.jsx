@@ -20,17 +20,17 @@ class DominoTile extends Component {
         this.handleClick = this.handleClick.bind(this);
         this.transform = this.transform.bind(this);
         this.getAnimationClassName = this.getAnimationClassName.bind(this);
-        this.toggleSelect = this.toggleSelect.bind(this);
+        this.setIsSelected = this.setIsSelected.bind(this);
     }
 
     
     handleClick() {
         if(this.state.inHand){
-            this.toggleSelect(this.props.selectTile(this));
+            this.setIsSelected(this.props.selectTile(this));
         }
     }
 
-    toggleSelect(select) {
+    setIsSelected(select) {
         this.setState({isSelected: select});
     }
 
