@@ -186,6 +186,7 @@ function endGame(gameData) {
     let currentPosition = Math.max(...gameData.players.map(player => player.position ? player.position : 0)) || 0;
     
     gameData.players.forEach(player => {
+        player.isActive = false;
         if(!player.position){
             player.position = ++currentPosition;
         }
