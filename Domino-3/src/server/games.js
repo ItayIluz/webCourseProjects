@@ -2,19 +2,9 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const auth = require('./auth');
-const {gameManager, Game} = require('../gameManager');
+const {gameManager, Game, Player} = require('../gameManager');
 
 const gamesData = [];
-/*
- * Each game has the following properties:
- 	title: The title of the game
-	numOfPlayers: The number of players needed for the game
-	createdBy: The name of the user who created the game
-	playersInGame: The total number of players who joined the game
-	status: The status of the game - Pending/In Session
-	players: An array with the names of the players who joined the game
-*/
-
 const gamesManagement = express.Router();
 
 gamesManagement.use(bodyParser.text());
@@ -35,11 +25,11 @@ gamesManagement.route('/')
 
 gamesManagement.get('/gameData/:searchTitle', (req, res) => {	
 	const gameData = gamesData.find(a => a.title === req.params.searchTitle);
-	const playerIndex = gameData.players.findIndex(a => req.playerName === a);
+	const playerIndex = gameData.players.findIndex(player => req.playerName === player.name);
 	gameData.isMyTurn = playerIndex === gameData.currentPlayerIndex;
-	gameData.currentPlayerName = gameData.players[gameData.currentPlayerIndex];
+	gameData.currentPlayerName = gameData.players[gameData.currentPlayerIndex].name;
 	gameData.hand = gameData.playerHands[playerIndex];
-	gameData.score = gameData.playerScores[playerIndex];
+	gameData.score = gameData.players[playerIndex] ? gameData.players[playerIndex].score : 0;
 	if (gameData)
 		res.json(gameData);
 });
@@ -58,7 +48,7 @@ gamesManagement.post('/playerJoinGame', (req, res) => {
 	const playerName = auth.getUserInfo(req.session.id).name;
 	const index = gamesData.findIndex(a => a.title === searchTitle);
 	if (index > -1){
-		gamesData[index].players.push(playerName);
+		gamesData[index].players.push(new Player(playerName));
 		gamesData[index].playersInGame++;
 
 		if(gamesData[index].numOfPlayers === gamesData[index].playersInGame){
@@ -77,7 +67,7 @@ gamesManagement.post('/playerJoinGame', (req, res) => {
 gamesManagement.post('/makeMove/draw', (req, res) => {
 	const body = JSON.parse(req.body);
 	const gameData = gamesData[gamesData.findIndex(a => a.title === body.gameTitle)];
-	const playerIndex = gameData.players.findIndex(name => req.playerName === name);
+	const playerIndex = gameData.players.findIndex(player => req.playerName === player.name);
 
 	gameManager.drawFromDeck(playerIndex, gameData);
 
@@ -87,7 +77,7 @@ gamesManagement.post('/makeMove/draw', (req, res) => {
 gamesManagement.post('/makeMove/placeTile', (req, res) => {	
 	const body = JSON.parse(req.body);
 	const gameData = gamesData[gamesData.findIndex(a => a.title === body.gameTitle)];
-	const playerIndex = gameData.players.findIndex(name => req.playerName === name);
+	const playerIndex = gameData.players.findIndex(player => req.playerName === player.name);
 
 	gameManager.placeTile(playerIndex, gameData, body.tile, body.position);
 

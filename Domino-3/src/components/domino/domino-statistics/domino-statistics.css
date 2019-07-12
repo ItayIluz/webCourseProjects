@@ -31,3 +31,23 @@
     color: #394053;
     padding: 20px 10px 0 10px;
 }
+
+.player-status-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.players-status-title {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.player-name {
+    font-size: 20px;
+    margin-left: 20px;
+}
+
+.player-status{
+    font-size: 17px;
+    font-style: italic;
+}

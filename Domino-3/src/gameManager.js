@@ -1,5 +1,5 @@
 const gameManager = {};
-const START_HAND_SIZE = 6;
+const START_HAND_SIZE = 1;
 
 function Game(title, numOfPlayers, createdBy){
     this.title = title;
@@ -9,12 +9,21 @@ function Game(title, numOfPlayers, createdBy){
     this.status = "Pending";
     this.players = [];
     this.playerHands = [];
-    this.playerScores = [];
     this.numOfTurns = 0;
     this.deck = [];
     this.boardTiles = [];
     this.availablePositions = [];
     this.currentPlayerIndex = 0;
+    this.isGameOver = false;
+
+    return this;
+}
+
+
+function Player(name){
+    this.name = name;
+    this.score = 0;
+    this.isActive = true;
 
     return this;
 }
@@ -23,15 +32,16 @@ gameManager.startGame = function(gameData){
     gameData.deck = generateDeck();
     for(let i = 0; i < gameData.numOfPlayers; i++){
         gameData.playerHands.push(makeInitialDraw(gameData.deck));
-        gameData.playerScores.push(0);
     }
 
     return;
 }
 
 gameManager.drawFromDeck = function(playerIndex, gameData){
-    gameData.playerHands[playerIndex].push(drawFromDeck(gameData.deck));
-    nextPlayer(gameData);
+    if(gameData.deck.length > 0){
+        gameData.playerHands[playerIndex].push(drawFromDeck(gameData.deck));
+        nextPlayer(gameData);
+    }
 }
 
 gameManager.placeTile = function(playerIndex, gameData, tile, tilePosition){
@@ -82,7 +92,7 @@ function drawFromDeck(deck) {
 }
 
 function addTileToScore(gameData, tile){
-    gameData.playerScores[gameData.currentPlayerIndex] += tile.numA + tile.numB;
+    gameData.players[gameData.currentPlayerIndex].score += tile.numA + tile.numB;
 }
 
 function findTileIndex(tiles, tile){
@@ -99,6 +109,11 @@ function findTileIndex(tiles, tile){
 
 function nextPlayer(gameData){
     gameData.numOfTurns++;
+
+    if(gameData.playerHands[gameData.currentPlayerIndex].length === 0){
+        playerFinishedPlaying(gameData, gameData.currentPlayerIndex);
+    }
+
     for(let i = 0; i < gameData.numOfPlayers; i++){
         gameData.currentPlayerIndex = (gameData.currentPlayerIndex + 1) % gameData.numOfPlayers;
         if(currentPlayerHasAvailableMoves(gameData)){
@@ -150,7 +165,31 @@ function addNewAvailablePositions(gameData, tile, tilePosition) {
     gameData.availablePositions = gameData.availablePositions.concat(newAvailablePositions);
 }
 
-function endGame(gameData){
+function playerFinishedPlaying(gameData, playerIndex){
+    gameData.players[playerIndex].isActive = false;
+
+    let currentPosition = Math.max(...gameData.players.map(player => player.position ? player.position : 0)) || 0;
+    currentPosition++;
+    gameData.players[playerIndex].position = currentPosition;
+
+    let numOfFinishedPlayers = 0;
+    gameData.players.forEach((player) => {
+        numOfFinishedPlayers += player.isActive ? 0 : 1;
+    });
+
+    if(numOfFinishedPlayers >= gameData.numOfPlayers - 1){
+        endGame(gameData);
+    }
+}
+
+function endGame(gameData) {
+    let currentPosition = Math.max(...gameData.players.map(player => player.position ? player.position : 0)) || 0;
+    
+    gameData.players.forEach(player => {
+        if(!player.position){
+            player.position = ++currentPosition;
+        }
+    });
     gameData.isGameOver = true;
 }
 
@@ -158,13 +197,13 @@ function currentPlayerHasAvailableMoves(gameData){
     if(gameData.deck.length !== 0) {
         return true;
     }
-    if (gameData.playerHands[gameData.currentPlayerIndex].length === 0) {
-        return false;
-    } else if (!gameData.playerHands[gameData.currentPlayerIndex]
+    if (gameData.playerHands[gameData.currentPlayerIndex]
         .some(tile => Object.values(gameData.availablePositions)
             .some(tilePosition => tile.numA === tilePosition.requiredNum || tile.numB === tilePosition.requiredNum))) {
-        return false;
+        return true;
     }
+
+    return false;
 }
 
 function getAdjacentOfDouble(position, numA, numB) {
@@ -283,21 +322,17 @@ function isVertical(position) {
 }
 
 function filterAdjacentPositions(tilePositions, takenPosition) {
-    console.log(`for: ${JSON.stringify(takenPosition)}`);
     tilePositions = tilePositions.filter(tilePosition => {
         if (takenPosition.x === tilePosition.position.x && Math.abs(takenPosition.y - tilePosition.position.y) <= 1) {
-            console.log(`removed: ${JSON.stringify(tilePosition.position)}`);
             return false;
         }
         if (takenPosition.y === tilePosition.position.y && Math.abs(takenPosition.x - tilePosition.position.x) <= 1) {
-            console.log(`removed: ${JSON.stringify(tilePosition.position)}`);
             return false;
         }
-        console.log(`allowed: ${JSON.stringify(tilePosition.position)}`);
         return true;
     });
 
     return tilePositions;
 }
 
-module.exports = {gameManager, Game};
+module.exports = {gameManager, Game, Player};

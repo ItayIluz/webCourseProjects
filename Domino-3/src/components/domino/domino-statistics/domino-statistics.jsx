@@ -6,19 +6,36 @@ class DominoStatistics extends Component {
     super();
     
     this.formatTime = this.formatTime.bind(this);
+    this.createPlayersStatus = this.createPlayersStatus.bind(this);
   }
 
   formatTime(time) {
+    if(!time){
+      return "0:0"
+    }
+
     let minutes = parseInt(time / 60);
     let seconds = parseInt(time - (minutes * 60));
 
     if (minutes < 10)
-        minutes = "0" + minutes;
+      minutes = "0" + minutes;
 
     if (seconds < 10)
-        seconds = "0" + seconds;
+      seconds = "0" + seconds;
 
     return minutes + ":" + seconds;
+  }
+
+  createPlayersStatus(players){
+    if(Array.isArray(players) && players.length > 0){
+      return players.map(player => <div className="player-status-row">
+        <div className="player-name">{player.name}</div>
+        <div className="player-status">{player.isActive ? 'Playing' : 'Finished' }</div>
+      </div>)
+    }
+
+    return [];
+
   }
 
   render() {
@@ -34,9 +51,6 @@ class DominoStatistics extends Component {
             <div className="statistics-data">{this.props.totalTurns}</div>
         </div>
         <div>
-           {/* <h4>
-                Player 1:
-           </h4>*/}
           <div className="player-statistics-container">
               <div className="statistics-field-container">
                   <label className="statistics-field-name">Score:</label>
@@ -50,6 +64,10 @@ class DominoStatistics extends Component {
                   <label className="statistics-field-name">Average Turn Time:</label>
                   <div className="statistics-data">{this.formatTime(this.props.averageTurnTime)}</div>
               </div>
+          </div>
+          <div className="players-status">
+            <div className="players-status-title">Players:</div>
+            {this.createPlayersStatus(this.props.players)}
           </div>
         </div>
     </div>

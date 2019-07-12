@@ -117,7 +117,9 @@ class DominoGame extends Component {
                 }
                 this.setState({
                         gameStatus: gameData.status,
-                        gameData: gameData
+                        gameData: gameData,
+                        players: gameData.players,
+                        showGameOverPopup: gameData.isGameOver
                     },
                     this.updateGame);
             })
@@ -353,16 +355,15 @@ class DominoGame extends Component {
                         score={this.state.score}
                         averageTurnTime={this.state.averageTurnTime}
                         numOfDraws={this.state.numOfDraws}
+                        players={this.state.players}
                     />
                     <GameOverPopup
                         showPopup={this.state.showGameOverPopup}
-                        startNewGameFunction={this.startNewGame}
-                        enableReplayFunction={this.enableReplay}
+                        playersData={this.state.players}
                         closeFunction={this.closeGameOverPopup}
                     />
-                    <div hidden={this.state.gameStatus !== "Pending" && this.state.gameData.isMyTurn} className="dialog-overlay">
+                    <div hidden={ (this.state.gameStatus !== "Pending" && this.state.gameData.isMyTurn) || this.state.showGameOverPopup} className="dialog-overlay">
                         <WaitingForPlayersDialog
-                            //leaveGameFunction={this.handleLeaveGame}
                             allPlayersAreIn={this.state.gameStatus !== "Pending"}
                             currentPlayerName={this.state.gameData ? this.state.gameData.currentPlayerName : null}
                         />
