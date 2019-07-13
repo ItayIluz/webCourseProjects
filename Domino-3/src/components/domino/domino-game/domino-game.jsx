@@ -331,10 +331,6 @@ class DominoGame extends Component {
                                 disabled={this.state.dominoDeck.length === 0 || this.state.isGameOver}>
                             {this.state.dominoDeck.length !== 0 ? "Draw From Deck" : "No more tiles"}
                         </button>
-                        <button className="my-button" onClick={this.startNewGame}
-                                hidden={!this.state.isGameOver || this.state.showGameOverPopup}>Start a
-                            New Game
-                        </button>
                     </div>
                 </div>
                 <div className="row-container">

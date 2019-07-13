@@ -1,5 +1,5 @@
 const gameManager = {};
-const START_HAND_SIZE = 1;
+const START_HAND_SIZE = 6;
 
 function Game(title, numOfPlayers, createdBy){
     this.title = title;

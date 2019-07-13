@@ -35,19 +35,19 @@
 .player-status-row {
     display: flex;
     justify-content: space-between;
+    padding: 0 20px
 }
 
 .players-status-title {
-    font-size: 22px;
+    font-size: 25px;
     font-weight: bold;
 }
 
 .player-name {
     font-size: 20px;
-    margin-left: 20px;
 }
 
-.player-status{
+.player-status {
     font-size: 17px;
     font-style: italic;
 }

@@ -37,6 +37,7 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
+    padding: 0 10px
 }
 
 .player-score{
@@ -51,6 +52,7 @@
     text-shadow: 0 0 10px rgba(255, 150, 0, 1);
 }
 
-.player:not(:last-child) .data{
-    border-bottom: 2px solid darkblue;
+.player:not(:last-child) .player-data{
+    border-bottom: 2px solid;
+    padding-bottom: 5px;
 }
