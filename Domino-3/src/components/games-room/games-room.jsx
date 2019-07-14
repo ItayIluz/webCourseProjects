@@ -67,7 +67,7 @@ class GamesRoom extends Component {
       return fetch('/games', {method: 'GET', credentials: 'include'})
       .then((response) => {
           if (!response.ok){
-              throw response;
+              console.log(response);
           }
           this.gamesTimeoutId = setTimeout(this.getGamesData, 200);
           return response.json();            
@@ -75,14 +75,14 @@ class GamesRoom extends Component {
       .then(gamesData => {
           this.setState({activeGames: gamesData});
       })
-      .catch(err => {throw err});
+      .catch(err => {console.log(err)});
   }
 
   getUsersData() {
       return fetch('/users/allUsers', {method: 'GET', credentials: 'include'})
       .then((response) => {
           if (!response.ok){
-              throw response;
+            console.log(response);
           }
           this.usersTimeoutId = setTimeout(this.getUsersData, 200);
           return response.json();            
@@ -90,7 +90,7 @@ class GamesRoom extends Component {
       .then(usersData => {
           this.setState({activePlayers: usersData});
       })
-      .catch(err => {throw err});
+      .catch(err => {console.log(err)});
   }
 
   render() {

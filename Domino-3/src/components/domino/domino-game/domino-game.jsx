@@ -10,7 +10,7 @@ class DominoGame extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            dominoDeck: [],
+            dominoDeckSize: 22,
             playerHand: [],
             availablePositions: [],
             selectedTile: null,
@@ -21,11 +21,10 @@ class DominoGame extends Component {
             numOfDraws: 0,
             averageTurnTime: 0,
             showGameOverPopup: false,
-            gameHistory: [],
-            gameHistoryRound: -1,
             isGameOver: false,
             disableReplay: true,
             gameStatus: "Pending",
+            gameOverForAllPlayers: false,
         };
 
         this.gameTimeInterval = null;
@@ -73,9 +72,9 @@ class DominoGame extends Component {
             body: JSON.stringify({
                 gameTitle: this.props.gameTitle,
                 tile: this.state.selectedTile.props,
-                position: tilePosition
-            })})
-        
+                    position: tilePosition
+            })
+        });
     }
 
     drawFromDeck() {
@@ -84,8 +83,10 @@ class DominoGame extends Component {
             credentials: 'include',
             body: JSON.stringify({
                 gameTitle: this.props.gameTitle,
-            })})
-        
+            })
+        }).then(() => {  
+            this.setState({numOfDraws: this.state.numOfDraws+1});
+        });
     }
 
     getFilteredBoardTilePositions(takenTilePosition) {
@@ -106,7 +107,7 @@ class DominoGame extends Component {
         return fetch(`/games/gameData/${this.props.gameTitle}`, {method: 'GET', credentials: 'include'})
             .then((response) => {
                 if (!response.ok) {
-                    throw response;
+                    console.log(response);
                 }
                 this.timeoutId = setTimeout(this.getGameData, 200);
                 return response.json();
@@ -119,12 +120,12 @@ class DominoGame extends Component {
                         gameStatus: gameData.status,
                         gameData: gameData,
                         players: gameData.players,
-                        showGameOverPopup: gameData.isGameOver
-                    },
-                    this.updateGame);
+                        dominoDeckSize: gameData.deck.length,
+                        gameOverForAllPlayers: gameData.numOfFinishedPlayers === gameData.numOfPlayers
+                    }, () => this.updateGame(gameData.isGameOver));
             })
             .catch(err => {
-                throw err
+                console.log(err);
             });
     }
 
@@ -132,16 +133,8 @@ class DominoGame extends Component {
         if (this.state.isGameOver)
             this.closeGameOverPopup();
 
-        let newDominoDeck = [];
-        // Generate deck tiles
-        for (let i = 0; i < 7; i++) {
-            for (let j = 0; j <= i; j++) {
-                newDominoDeck.push({numA: i, numB: j});
-            }
-        }
-
         this.setState({
-            dominoDeck: newDominoDeck,
+            dominoDeckSize: 22,
             playerHand: [],
             selectedTile: null,
             boardTiles: [],
@@ -151,13 +144,10 @@ class DominoGame extends Component {
             numOfDraws: 0,
             averageTurnTime: 0,
             showGameOverPopup: false,
-            gameHistory: [],
-            gameHistoryRound: -1,
             isGameOver: false,
             disableReplay: true,
+            gameOverForAllPlayers: false
         }, () => {
-
-
             this.gameBoard.current.style.width = "";
             this.gameBoard.current.style.height = "";
         });
@@ -179,22 +169,12 @@ class DominoGame extends Component {
         })
     }
 
-    checkGameOver() {
-        if (this.state.dominoDeck.length !== 0) {
-            return;
-        }
-        if (this.state.playerHand.length === 0) {
-            this.setGameOver();
-        } else if (this.hasNoValidMoves()) {
-            this.setGameOver();
-        }
-    }
-
     setGameOver() {
         if (!this.state.isGameOver) {
             this.setState({isGameOver: true});
             this.openGameOverPopup();
             clearInterval(this.gameTimeInterval);
+            clearInterval(this.timeoutId);
         }
     }
 
@@ -220,7 +200,7 @@ class DominoGame extends Component {
         return true;
     }
 
-    updateGame() {
+    updateGame(isGameOver) {
         let boardTiles = this.createBoardTiles();
         let availablePositions = this.createAvailablePositions();
         let hand = this.createHand();
@@ -229,7 +209,10 @@ class DominoGame extends Component {
             boardTiles: boardTiles,
             availablePositions: availablePositions,
             playerHand: hand
-        })
+        }, () => {
+            if(isGameOver)
+                this.setGameOver();
+        });
     }
 
     createBoardTiles() {
@@ -328,8 +311,8 @@ class DominoGame extends Component {
                     </div>
                     <div>
                         <button className="my-button" onClick={() => this.drawFromDeck()}
-                                disabled={this.state.dominoDeck.length === 0 || this.state.isGameOver}>
-                            {this.state.dominoDeck.length !== 0 ? "Draw From Deck" : "No more tiles"}
+                                disabled={this.state.dominoDeckSize === 0 || this.state.isGameOver}>
+                            {this.state.dominoDeckSize !== 0 ? "Draw From Deck" : "No more tiles"}
                         </button>
                     </div>
                 </div>
@@ -357,11 +340,14 @@ class DominoGame extends Component {
                         showPopup={this.state.showGameOverPopup}
                         playersData={this.state.players}
                         closeFunction={this.closeGameOverPopup}
+                        leaveGameFunction={this.props.handleLeaveGame}
+                        canCloseAndWatch={!this.gameOverForAllPlayers}
                     />
                     <div hidden={ (this.state.gameStatus !== "Pending" && this.state.gameData.isMyTurn) || this.state.showGameOverPopup} className="dialog-overlay">
                         <WaitingForPlayersDialog
                             allPlayersAreIn={this.state.gameStatus !== "Pending"}
                             currentPlayerName={this.state.gameData ? this.state.gameData.currentPlayerName : null}
+                            leaveGameFunction={this.props.handleLeaveGame}
                         />
                     </div>
 

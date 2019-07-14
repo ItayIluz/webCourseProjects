@@ -18,6 +18,7 @@ export default class BaseContainer extends React.Component {
         this.fetchUserInfo = this.fetchUserInfo.bind(this);
         this.handleLogout= this.handleLogout.bind(this);
         this.handleJoinGame= this.handleJoinGame.bind(this);
+        this.handleLeaveGame= this.handleLeaveGame.bind(this);
 
         this.getUserName();
     }
@@ -28,12 +29,23 @@ export default class BaseContainer extends React.Component {
         } else if(this.state.currentGameTitle === null){
             return (<GamesRoom currentUser={this.state.currentUser} handleJoinGame={this.handleJoinGame} handleLogout={this.handleLogout}/>);
         } else {
-            return (<DominoGame gameTitle={this.state.currentGameTitle} currentUser={this.state.currentUser}/>)
+            return (<DominoGame gameTitle={this.state.currentGameTitle} currentUser={this.state.currentUser} handleLeaveGame={this.handleLeaveGame}/>)
         }
     }
 
     handleSuccessedLogin() {
         this.setState(()=>({connectedSuccessfully:true}), this.getUserName);        
+    }
+
+    handleLeaveGame(){
+        fetch('/games/playerLeaveGame', {method: 'POST', body: this.state.currentGameTitle, credentials: 'include'})
+        .then(response => {
+            if (!response.ok) {
+                console.log(`Failed to leave game ${this.state.currentGameTitle} `, response);                
+            } else {
+                this.setState({currentGameTitle: null});
+            }
+        });
     }
 
     handleJoinGame(gameTitle){
@@ -56,7 +68,7 @@ export default class BaseContainer extends React.Component {
             if (err.status === 401) { // incase we're getting 'unautorithed' as response
                 this.setState(()=>({connectedSuccessfully: false}));
             } else {
-                throw err; // in case we're getting an error
+                console.log("Unauthorized")
             }
         });
     }
@@ -65,7 +77,7 @@ export default class BaseContainer extends React.Component {
         return fetch('/users',{method: 'GET', credentials: 'include'})
         .then(response => {            
             if (!response.ok){
-                throw response;
+                console.log("Unauthorized");
             }
             return response.json();
         });

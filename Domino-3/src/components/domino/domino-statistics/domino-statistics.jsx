@@ -28,9 +28,9 @@ class DominoStatistics extends Component {
 
   createPlayersStatus(players){
     if(Array.isArray(players) && players.length > 0){
-      return players.map(player => <div className="player-status-row">
-        <div className="player-name">{player.name}</div>
-        <div className="player-status">{player.isActive ? 'Playing' : 'Finished' }</div>
+      return players.map(player => <div key={"main-statistics-player" + player.name} className="player-status-row">
+        <div key={"main-statistics-player-name" + player.name} className="player-name">{player.name}</div>
+        <div key={"main-statistics-player-status" + player.name} className="player-status">{player.isActive ? 'Playing' : 'Finished' }</div>
       </div>)
     }
 

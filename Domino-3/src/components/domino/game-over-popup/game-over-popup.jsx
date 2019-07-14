@@ -13,7 +13,8 @@ class GameOverPopup extends Component {
                 <h1>Game Over</h1>
                 <div className="popup-text">{this.props.gameOverMessage}</div>
                 {this.showStatistics(this.props.playersData)}
-                <button className="my-button" onClick={this.props.closeFunction}>Close</button>
+                <button className="my-button" onClick={this.props.closeFunction} disabled={!this.props.canCloseAndWatch}>Close and Watch</button>
+                <button className="my-button" onClick={this.props.leaveGameFunction}>Leave Game</button>
             </div>
         );
     }
@@ -21,11 +22,11 @@ class GameOverPopup extends Component {
     showStatistics(playersData) {
         if(Array.isArray(playersData)){
             return playersData.map(playerData =>
-            <div className="player">
+            <div key={"gameover-statistics-player" + playerData.name} className="player">
             {'Player ' + playerData.name + ':'}
-                <div className="player-data">
-                    <div className="player-score">{playerData.score + ' points'}</div>
-                    <div className="player-position">{'#' + playerData.position}</div>
+                <div key={"gameover-statistics-player-data" + playerData.name} className="player-data">
+                    <div key={"gameover-statistics-player-score" + playerData.name} className="player-score">{playerData.score + ' points'}</div>
+                    <div key={"gameover-statistics-player-position" + playerData.name} className="player-position">{'#' + playerData.position}</div>
                 </div>
             </div>
             )

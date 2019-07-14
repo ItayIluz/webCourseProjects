@@ -60,6 +60,26 @@ gamesManagement.post('/playerJoinGame', (req, res) => {
 	res.sendStatus(200);
 });
 
+gamesManagement.post('/playerLeaveGame', (req, res) => {	
+	const searchTitle = req.body;
+	const playerName = auth.getUserInfo(req.session.id).name;
+	const gameIndex = gamesData.findIndex(a => a.title === searchTitle);
+	if (gameIndex > -1){
+		const playerIndex = gamesData[gameIndex].players.findIndex(a => a.name === playerName);
+		if(playerIndex > -1){
+			gamesData[gameIndex].players.splice(playerIndex,1);
+			gamesData[gameIndex].playersInGame--;
+
+			if(gamesData[gameIndex].status === "In Session" && gamesData[gameIndex].isGameOver && gamesData[gameIndex].playersInGame === 0){
+				gamesData[gameIndex].isGameOver = false;
+				gamesData[gameIndex].status = "Pending";
+			}
+		}
+	}
+
+	res.sendStatus(200);
+});
+
 
 //Game Management
 

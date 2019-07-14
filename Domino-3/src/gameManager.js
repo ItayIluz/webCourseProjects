@@ -15,6 +15,7 @@ function Game(title, numOfPlayers, createdBy){
     this.availablePositions = [];
     this.currentPlayerIndex = 0;
     this.isGameOver = false;
+    this.numOfFinishedPlayers = 0;
 
     return this;
 }
@@ -29,6 +30,15 @@ function Player(name){
 }
 
 gameManager.startGame = function(gameData){
+
+    gameData.currentPlayerIndex = 0;
+    gameData.isGameOver = false;
+    gameData.numOfFinishedPlayers = 0;
+    gameData.playerHands = [];
+    gameData.numOfTurns = 0;
+    gameData.boardTiles = [];
+    gameData.availablePositions = [];
+
     gameData.deck = generateDeck();
     for(let i = 0; i < gameData.numOfPlayers; i++){
         gameData.playerHands.push(makeInitialDraw(gameData.deck));
@@ -42,6 +52,7 @@ gameManager.drawFromDeck = function(playerIndex, gameData){
         gameData.playerHands[playerIndex].push(drawFromDeck(gameData.deck));
         nextPlayer(gameData);
     }
+    return;
 }
 
 gameManager.placeTile = function(playerIndex, gameData, tile, tilePosition){
@@ -172,12 +183,9 @@ function playerFinishedPlaying(gameData, playerIndex){
     currentPosition++;
     gameData.players[playerIndex].position = currentPosition;
 
-    let numOfFinishedPlayers = 0;
-    gameData.players.forEach((player) => {
-        numOfFinishedPlayers += player.isActive ? 0 : 1;
-    });
+    gameData.numOfFinishedPlayers += 1;
 
-    if(numOfFinishedPlayers >= gameData.numOfPlayers - 1){
+    if(gameData.numOfFinishedPlayers >= gameData.numOfPlayers - 1){
         endGame(gameData);
     }
 }
