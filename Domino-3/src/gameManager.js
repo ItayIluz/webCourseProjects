@@ -126,12 +126,13 @@ function nextPlayer(gameData){
     }
 
     for(let i = 0; i < gameData.numOfPlayers; i++){
+
         gameData.currentPlayerIndex = (gameData.currentPlayerIndex + 1) % gameData.numOfPlayers;
         if(currentPlayerHasAvailableMoves(gameData)){
             return;
         }
     }
-    endGame(gameData);
+        endGame(gameData);
 }
 
 function canPlaceTile(tile, tilePosition){
@@ -203,16 +204,17 @@ function endGame(gameData) {
 }
 
 function currentPlayerHasAvailableMoves(gameData){
-    if(gameData.deck.length !== 0) {
-        return true;
+    if(!gameData.players[gameData.currentPlayerIndex].isActive){
+        return false;
     }
-    if (gameData.playerHands[gameData.currentPlayerIndex]
-        .some(tile => Object.values(gameData.availablePositions)
-            .some(tilePosition => tile.numA === tilePosition.requiredNum || tile.numB === tilePosition.requiredNum))) {
+
+    if(gameData.deck.length !== 0 || gameData.availablePositions.length === 0) {
         return true;
     }
 
-    return false;
+    return gameData.playerHands[gameData.currentPlayerIndex]
+        .some(tile => Object.values(gameData.availablePositions)
+            .some(tilePosition => tile.numA === tilePosition.requiredNum || tile.numB === tilePosition.requiredNum));
 }
 
 function getAdjacentOfDouble(position, numA, numB) {

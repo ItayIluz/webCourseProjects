@@ -74,7 +74,7 @@ class DominoGame extends Component {
                 tile: this.state.selectedTile.props,
                     position: tilePosition
             })
-        });
+        }).then(() => this.expandBoard(tilePosition));
     }
 
     drawFromDeck() {
