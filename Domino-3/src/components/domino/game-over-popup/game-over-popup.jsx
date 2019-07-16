@@ -9,12 +9,19 @@ class GameOverPopup extends Component {
 
     render() {
         return (
-            <div className={"popup-message " + (this.props.showPopup ? "show-popup" : "")}>
-                <h1>Game Over</h1>
-                <div className="popup-text">{this.props.gameOverMessage}</div>
-                {this.showStatistics(this.props.playersData)}
-                <button className="my-button" onClick={this.props.closeFunction} disabled={!this.props.canCloseAndWatch}>Close and Watch</button>
-                <button className="my-button" onClick={this.props.leaveGameFunction}>Leave Game</button>
+            <div className="dialog-modal">
+                <div className="container-header dialog-header">
+                <div className="container-header-title">Game Over</div>
+                    <div className="container dialog-container">
+                        <div style={{margin: "0px 20px", padding: "5px"}}>
+                            {this.showStatistics(this.props.playersData)}
+                        </div>
+                        <div className="dialog-button-panel">
+                            <button className="my-button dialog-button" onClick={this.props.closeFunction} disabled={!this.props.canCloseAndWatch}>Close and Watch</button>
+                            <button className="my-button dialog-button" onClick={this.props.leaveGameFunction}>Leave Game</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }

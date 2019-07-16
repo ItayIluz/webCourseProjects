@@ -19,6 +19,8 @@ class GamesRoom extends Component {
       joinedGameTitle: null,
       showAddNewGameDialog: false,
     }
+
+    this._isMounted = false;
     
     this.getGamesData = this.getGamesData.bind(this);
     this.getUsersData = this.getUsersData.bind(this);
@@ -28,11 +30,13 @@ class GamesRoom extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true;
     this.getGamesData();
     this.getUsersData();
   }
 
   componentWillUnmount() {
+    this._isMounted = false;
     if (this.gamesTimeoutId) {
       clearTimeout(this.gamesTimeoutId);
     }
@@ -73,9 +77,9 @@ class GamesRoom extends Component {
           return response.json();            
       })
       .then(gamesData => {
-          this.setState({activeGames: gamesData});
+          if(this._isMounted)
+            this.setState({activeGames: gamesData});
       })
-      .catch(err => {console.log(err)});
   }
 
   getUsersData() {
@@ -88,9 +92,9 @@ class GamesRoom extends Component {
           return response.json();            
       })
       .then(usersData => {
-          this.setState({activePlayers: usersData});
+          if(this._isMounted)
+            this.setState({activePlayers: usersData});
       })
-      .catch(err => {console.log(err)});
   }
 
   render() {

@@ -184,7 +184,7 @@ function playerFinishedPlaying(gameData, playerIndex){
     currentPosition++;
     gameData.players[playerIndex].position = currentPosition;
 
-    gameData.numOfFinishedPlayers += 1;
+    gameData.numOfFinishedPlayers++;
 
     if(gameData.numOfFinishedPlayers >= gameData.numOfPlayers - 1){
         endGame(gameData);

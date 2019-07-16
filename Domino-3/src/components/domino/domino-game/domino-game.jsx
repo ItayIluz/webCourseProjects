@@ -28,6 +28,7 @@ class DominoGame extends Component {
         };
 
         this.gameTimeInterval = null;
+        this.getDataTimeout = null;
 
         this.gameBoard = React.createRef();
 
@@ -55,9 +56,11 @@ class DominoGame extends Component {
     }
 
     componentWillUnmount() {
-        clearInterval(this.gameTimeInterval);
-        if (this.timeoutId) {
-            clearTimeout(this.timeoutId);
+        if(this.gameTimeInterval){
+            clearInterval(this.gameTimeInterval);
+        }
+        if (this.getDataTimeout) {
+            clearTimeout(this.getDataTimeout);
         }
     }
 
@@ -109,7 +112,7 @@ class DominoGame extends Component {
                 if (!response.ok) {
                     console.log(response);
                 }
-                this.timeoutId = setTimeout(this.getGameData, 200);
+                this.getDataTimeout = setTimeout(this.getGameData, 200);
                 return response.json();
             })
             .then(gameData => {
@@ -121,7 +124,7 @@ class DominoGame extends Component {
                         gameData: gameData,
                         players: gameData.players,
                         dominoDeckSize: gameData.deck.length,
-                        gameOverForAllPlayers: gameData.numOfFinishedPlayers === gameData.numOfPlayers
+                        gameOverForAllPlayers: (gameData.numOfFinishedPlayers === (gameData.numOfPlayers - 1))
                     }, () => this.updateGame(gameData.isGameOver));
             })
             .catch(err => {
@@ -174,7 +177,7 @@ class DominoGame extends Component {
             this.setState({isGameOver: true});
             this.openGameOverPopup();
             clearInterval(this.gameTimeInterval);
-            clearInterval(this.timeoutId);
+            clearTimeout(this.getDataTimeout);
         }
     }
 
@@ -268,22 +271,23 @@ class DominoGame extends Component {
             this.gameBoard.current.style.height = this.gameBoard.current.clientHeight + "px";
         }
 
-        if (position.spin % 2 === 0) {
-            this.gameBoard.current.style.width = `${this.gameBoard.current.clientWidth + tileWidth}px`;
-            this.gameBoard.current.style.height = `${this.gameBoard.current.clientHeight + tileHeight * 2}px`;
-            scrollLeft += tileWidth / 3;
-            scrollTop += tileHeight;
-        } else {
-            this.gameBoard.current.style.width = `${this.gameBoard.current.clientHeight + tileHeight * 2}px`;
-            this.gameBoard.current.style.height = `${this.gameBoard.current.clientWidth + tileWidth}px`;
+        if(position){
+            if (position.spin % 2 === 0) {
+                this.gameBoard.current.style.width = `${this.gameBoard.current.clientWidth + tileWidth}px`;
+                this.gameBoard.current.style.height = `${this.gameBoard.current.clientHeight + tileHeight * 2}px`;
+                scrollLeft += tileWidth / 3;
+                scrollTop += tileHeight;
+            } else {
+                this.gameBoard.current.style.width = `${this.gameBoard.current.clientHeight + tileHeight * 2}px`;
+                this.gameBoard.current.style.height = `${this.gameBoard.current.clientWidth + tileWidth}px`;
 
-            if (this.state.boardTiles.length == 2)
-                scrollTop += tileWidth * 8;
-            else
-                scrollTop += tileWidth * 2.5;
+                if (this.state.boardTiles.length == 2)
+                    scrollTop += tileWidth * 8;
+                else
+                    scrollTop += tileWidth * 2.5;
 
-            scrollLeft += tileHeight * 1.5;
-
+                scrollLeft += tileHeight * 1.5;
+            }
         }
         this.gameBoard.current.parentElement.scrollTo(scrollLeft, scrollTop);
     }
@@ -312,7 +316,7 @@ class DominoGame extends Component {
                     <div>
                         <button className="my-button" onClick={() => this.drawFromDeck()}
                                 disabled={this.state.dominoDeckSize === 0 || this.state.isGameOver}>
-                            {this.state.dominoDeckSize !== 0 ? "Draw From Deck" : "No more tiles"}
+                            {this.state.dominoDeckSize !== 0 ? "Draw From Deck (" + this.state.dominoDeckSize + " left)" : "No more tiles"}
                         </button>
                     </div>
                 </div>
@@ -336,13 +340,14 @@ class DominoGame extends Component {
                         numOfDraws={this.state.numOfDraws}
                         players={this.state.players}
                     />
-                    <GameOverPopup
-                        showPopup={this.state.showGameOverPopup}
-                        playersData={this.state.players}
-                        closeFunction={this.closeGameOverPopup}
-                        leaveGameFunction={this.props.handleLeaveGame}
-                        canCloseAndWatch={!this.gameOverForAllPlayers}
-                    />
+                    <div hidden={!this.state.showGameOverPopup} className="dialog-overlay">
+                        <GameOverPopup
+                            playersData={this.state.players}
+                            closeFunction={this.closeGameOverPopup}
+                            leaveGameFunction={this.props.handleLeaveGame}
+                            canCloseAndWatch={!this.state.gameOverForAllPlayers}
+                        />
+                    </div>
                     <div hidden={ (this.state.gameStatus !== "Pending" && this.state.gameData.isMyTurn) || this.state.showGameOverPopup} className="dialog-overlay">
                         <WaitingForPlayersDialog
                             allPlayersAreIn={this.state.gameStatus !== "Pending"}

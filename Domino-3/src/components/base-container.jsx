@@ -67,8 +67,6 @@ export default class BaseContainer extends React.Component {
         .catch(err=>{            
             if (err.status === 401) { // incase we're getting 'unautorithed' as response
                 this.setState(()=>({connectedSuccessfully: false}));
-            } else {
-                console.log("Unauthorized")
             }
         });
     }
