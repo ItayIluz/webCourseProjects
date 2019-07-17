@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const auth = require('./auth');
-const {gameManager, Game, Player} = require('../gameManager');
+const {gameManager, Game, Player} = require('./gameManager');
 
 const gamesData = [];
 const gamesManagement = express.Router();
